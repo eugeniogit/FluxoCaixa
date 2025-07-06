@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: fluxocaixa-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - fluxocaixa-network
+
+  postgresql:
+    image: postgres:15
+    container_name: fluxocaixa-postgresql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: fluxocaixa
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - fluxocaixa-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fluxocaixa-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - fluxocaixa-network
+
+volumes:
+  mongodb_data:
+  postgresql_data:
+  rabbitmq_data:
+
+networks:
+  fluxocaixa-network:
+    driver: bridge
