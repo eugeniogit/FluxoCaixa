@@ -7,13 +7,23 @@ using Xunit;
 namespace FluxoCaixa.Consolidado.IntegrationTests.Features;
 
 [Collection("ConsolidadoIntegrationTests")]
-public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTestFactory>
+public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTestFactory>, IAsyncLifetime
 {
     private readonly ConsolidadoTestFactory _factory;
 
     public ConsolidarLancamentoIntegrationTests(ConsolidadoTestFactory factory)
     {
         _factory = factory;
+    }
+
+    public async Task InitializeAsync()
+    {
+        await TestHelpers.ClearDatabase(_factory);
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     [Fact]
@@ -25,7 +35,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
             comerciante: "Comerciante Novo",
             valor: 150m,
             tipo: TipoLancamento.Credito,
-            data: DateTime.Today);
+            data: DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc));
 
         var mediator = _factory.GetMediator();
 
@@ -36,11 +46,11 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
         var consolidado = await TestHelpers.GetConsolidadoFromDatabase(
             _factory, 
             "Comerciante Novo", 
-            DateTime.Today);
+            DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc));
 
         consolidado.Should().NotBeNull();
         consolidado!.Comerciante.Should().Be("Comerciante Novo");
-        consolidado.Data.Should().Be(DateTime.Today);
+        consolidado.Data.Should().Be(DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc));
         consolidado.TotalCreditos.Should().Be(150m);
         consolidado.TotalDebitos.Should().Be(0m);
         consolidado.SaldoLiquido.Should().Be(150m);
@@ -58,7 +68,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
         // Arrange
         await TestHelpers.ClearDatabase(_factory);
         var comerciante = "Comerciante Existente";
-        var data = DateTime.Today;
+        var data = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
 
         // Create existing consolidado
         var consolidadoExistente = await TestHelpers.CreateConsolidadoInDatabase(
@@ -99,7 +109,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
             comerciante: "Comerciante Credito",
             valor: 200m,
             tipo: TipoLancamento.Credito,
-            data: DateTime.Today);
+            data: DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc));
 
         var mediator = _factory.GetMediator();
 
@@ -107,7 +117,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
         await mediator.Send(command);
 
         // Assert
-        var consolidado = await TestHelpers.GetConsolidadoFromDatabase(_factory, "Comerciante Credito", DateTime.Today);
+        var consolidado = await TestHelpers.GetConsolidadoFromDatabase(_factory, "Comerciante Credito", DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc));
 
         consolidado.Should().NotBeNull();
         consolidado!.TotalCreditos.Should().Be(200m);
@@ -126,7 +136,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
             comerciante: "Comerciante Debito",
             valor: 80m,
             tipo: TipoLancamento.Debito,
-            data: DateTime.Today);
+            data: DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc));
 
         var mediator = _factory.GetMediator();
 
@@ -134,7 +144,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
         await mediator.Send(command);
 
         // Assert
-        var consolidado = await TestHelpers.GetConsolidadoFromDatabase(_factory, "Comerciante Debito", DateTime.Today);
+        var consolidado = await TestHelpers.GetConsolidadoFromDatabase(_factory, "Comerciante Debito", DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc));
 
         consolidado.Should().NotBeNull();
         consolidado!.TotalCreditos.Should().Be(0m);
@@ -155,7 +165,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
             comerciante: "Comerciante Duplicado",
             valor: 50m,
             tipo: TipoLancamento.Credito,
-            data: DateTime.Today);
+            data: DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc));
 
         var mediator = _factory.GetMediator();
 
@@ -166,7 +176,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
         await mediator.Send(command);
 
         // Assert
-        var consolidado = await TestHelpers.GetConsolidadoFromDatabase(_factory, "Comerciante Duplicado", DateTime.Today);
+        var consolidado = await TestHelpers.GetConsolidadoFromDatabase(_factory, "Comerciante Duplicado", DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc));
 
         consolidado.Should().NotBeNull();
         consolidado!.TotalCreditos.Should().Be(50m); // Should not be doubled
@@ -190,10 +200,10 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
         await mediator.Send(command);
 
         // Assert
-        var consolidado = await TestHelpers.GetConsolidadoFromDatabase(_factory, "Comerciante Data", dataComHorario.Date);
+        var consolidado = await TestHelpers.GetConsolidadoFromDatabase(_factory, "Comerciante Data", DateTime.SpecifyKind(dataComHorario.Date, DateTimeKind.Utc));
 
         consolidado.Should().NotBeNull();
-        consolidado!.Data.Should().Be(dataComHorario.Date);
+        consolidado!.Data.Should().Be(DateTime.SpecifyKind(dataComHorario.Date, DateTimeKind.Utc));
         consolidado.Data.Hour.Should().Be(0);
         consolidado.Data.Minute.Should().Be(0);
         consolidado.Data.Second.Should().Be(0);
@@ -205,7 +215,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
         // Arrange
         await TestHelpers.ClearDatabase(_factory);
         var comerciante = "Comerciante Multiplos";
-        var data = DateTime.Today;
+        var data = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
 
         var commands = new[]
         {
@@ -250,7 +260,7 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
     {
         // Arrange
         await TestHelpers.ClearDatabase(_factory);
-        var data = DateTime.Today;
+        var data = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
 
         var commands = new[]
         {
@@ -293,8 +303,8 @@ public class ConsolidarLancamentoIntegrationTests : IClassFixture<ConsolidadoTes
         // Arrange
         await TestHelpers.ClearDatabase(_factory);
         var comerciante = "Comerciante Datas";
-        var data1 = DateTime.Today;
-        var data2 = DateTime.Today.AddDays(1);
+        var data1 = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+        var data2 = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc).AddDays(1);
 
         var commands = new[]
         {

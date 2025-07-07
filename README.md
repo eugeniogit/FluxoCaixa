@@ -34,7 +34,6 @@ Os serviços foram desenvolvidos utilizando **Vertical Slice Architecture** (VSA
 
 - **Propósito**: Consolidação diária dos lançamentos por comerciante
 - **Banco de Dados**: PostgreSQL
-- **Porta**: 60281 (HTTP)
 - **Tecnologias**: ASP.NET Core 8, Minimal API, Entity Framework Core
 - **Processamento**: Background jobs com Quartz.NET
 
@@ -160,13 +159,6 @@ Os testes unitários cobrem todas as features, handlers, validadores e modelos d
 # Executar todos os testes unitários
 dotnet test tests/FluxoCaixa.Lancamento.UnitTests/ --verbosity normal
 dotnet test tests/FluxoCaixa.Consolidado.UnitTests/ --verbosity normal
-
-# Executar todos os testes unitários em paralelo
-dotnet test tests/FluxoCaixa.Lancamento.UnitTests/ tests/FluxoCaixa.Consolidado.UnitTests/ --verbosity normal
-
-# Executar com cobertura de código
-dotnet test tests/FluxoCaixa.Lancamento.UnitTests/ --collect:"XPlat Code Coverage"
-dotnet test tests/FluxoCaixa.Consolidado.UnitTests/ --collect:"XPlat Code Coverage"
 ```
 
 ### Testes de Integração
@@ -186,19 +178,3 @@ dotnet test --verbosity normal
 dotnet test tests/FluxoCaixa.Lancamento.IntegrationTests/FluxoCaixa.Lancamento.IntegrationTests.csproj --verbosity normal
 dotnet test tests/FluxoCaixa.Consolidado.IntegrationTests/FluxoCaixa.Consolidado.IntegrationTests.csproj --verbosity normal
 ```
-
-### Executar Todos os Testes
-
-```bash
-# Executar toda a suíte de testes (unitários + integração)
-dotnet test --verbosity normal
-
-# Com relatório de cobertura
-dotnet test --collect:"XPlat Code Coverage" --verbosity normal
-```
-
-## 🔧 Configuração
-
-### Variáveis de Ambiente
-
-As aplicações podem ser configuradas via `appsettings.json` ou variáveis de ambiente:

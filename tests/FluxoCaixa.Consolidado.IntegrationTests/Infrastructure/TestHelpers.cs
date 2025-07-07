@@ -23,7 +23,7 @@ public static class TestHelpers
                 Comerciante = comerciante ?? "Comerciante Teste",
                 Valor = valor ?? 100.50m,
                 Tipo = tipo ?? TipoLancamento.Credito,
-                Data = data ?? DateTime.Now,
+                Data = data ?? DateTime.UtcNow,
                 Descricao = descricao ?? "Descrição teste",
                 DataLancamento = DateTime.UtcNow
             }
@@ -37,8 +37,8 @@ public static class TestHelpers
     {
         return new ConsolidarPeriodoCommand
         {
-            DataInicio = dataInicio ?? DateTime.Today.AddDays(-7),
-            DataFim = dataFim ?? DateTime.Today,
+            DataInicio = dataInicio ?? DateTime.SpecifyKind(DateTime.UtcNow.Date.AddDays(-7), DateTimeKind.Utc),
+            DataFim = dataFim ?? DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc),
             Comerciante = comerciante
         };
     }
@@ -57,7 +57,7 @@ public static class TestHelpers
             Comerciante = comerciante ?? "Comerciante Teste",
             Valor = valor ?? 100.50m,
             Tipo = tipo ?? TipoLancamento.Credito,
-            Data = data ?? DateTime.Now,
+            Data = data ?? DateTime.UtcNow,
             Descricao = descricao ?? "Descrição teste",
             DataLancamento = DateTime.UtcNow
         };
@@ -75,7 +75,7 @@ public static class TestHelpers
         var dbContext = factory.GetDbContext();
         var consolidado = new Domain.Consolidado(
             comerciante ?? "Comerciante Teste",
-            data ?? DateTime.Today
+            data ?? DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc)
         );
 
         // Add some transactions if specified
@@ -102,7 +102,7 @@ public static class TestHelpers
         TipoLancamento? tipo = null)
     {
         var events = new List<LancamentoEvent>();
-        var date = baseDate ?? DateTime.Today;
+        var date = baseDate ?? DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
 
         for (int i = 0; i < count; i++)
         {
@@ -133,8 +133,9 @@ public static class TestHelpers
         DateTime data)
     {
         var dbContext = factory.GetDbContext();
+        var dateOnly = DateTime.SpecifyKind(data.Date, DateTimeKind.Utc);
         return await dbContext.Consolidados
-            .FirstOrDefaultAsync(c => c.Comerciante == comerciante && c.Data == data.Date);
+            .FirstOrDefaultAsync(c => c.Comerciante == comerciante && c.Data == dateOnly);
     }
 
     public static async Task<bool> IsLancamentoConsolidado(

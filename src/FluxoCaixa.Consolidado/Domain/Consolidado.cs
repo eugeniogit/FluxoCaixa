@@ -42,7 +42,7 @@ public class Consolidado
             throw new ArgumentException("Data é obrigatória", nameof(data));
 
         Comerciante = comerciante;
-        Data = data.Date;
+        Data = DateTime.SpecifyKind(data.Date, DateTimeKind.Utc);
         TotalCreditos = 0;
         TotalDebitos = 0;
         QuantidadeCreditos = 0;
