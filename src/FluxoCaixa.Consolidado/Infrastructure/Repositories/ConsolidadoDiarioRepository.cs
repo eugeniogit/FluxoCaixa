@@ -13,20 +13,20 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
         _context = context;
     }
 
-    public async Task<ConsolidadoDiario?> GetByComercianteAndDataAsync(string comerciante, DateTime data, CancellationToken cancellationToken = default)
+    public async Task<Domain.Consolidado?> GetByComercianteAndDataAsync(string comerciante, DateTime data, CancellationToken cancellationToken = default)
     {
         return await _context.ConsolidadosDiarios
             .FirstOrDefaultAsync(c => c.Comerciante == comerciante && c.Data == data.Date, cancellationToken);
     }
 
-    public async Task<List<ConsolidadoDiario>> GetByDataAsync(DateTime data, CancellationToken cancellationToken = default)
+    public async Task<List<Domain.Consolidado>> GetByDataAsync(DateTime data, CancellationToken cancellationToken = default)
     {
         return await _context.ConsolidadosDiarios
             .Where(c => c.Data == data.Date)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<ConsolidadoDiario>> GetByPeriodoAsync(DateTime dataInicio, DateTime dataFim, CancellationToken cancellationToken = default)
+    public async Task<List<Domain.Consolidado>> GetByPeriodoAsync(DateTime dataInicio, DateTime dataFim, CancellationToken cancellationToken = default)
     {
         return await _context.ConsolidadosDiarios
             .Where(c => c.Data >= dataInicio.Date && c.Data <= dataFim.Date)
@@ -35,7 +35,7 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<ConsolidadoDiario>> GetByComerciante(string comerciante, CancellationToken cancellationToken = default)
+    public async Task<List<Domain.Consolidado>> GetByComerciante(string comerciante, CancellationToken cancellationToken = default)
     {
         return await _context.ConsolidadosDiarios
             .Where(c => c.Comerciante == comerciante)
@@ -43,18 +43,18 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task AddAsync(ConsolidadoDiario consolidado, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Domain.Consolidado consolidado, CancellationToken cancellationToken = default)
     {
         await _context.ConsolidadosDiarios.AddAsync(consolidado, cancellationToken);
     }
 
-    public Task UpdateAsync(ConsolidadoDiario consolidado, CancellationToken cancellationToken = default)
+    public Task UpdateAsync(Domain.Consolidado consolidado, CancellationToken cancellationToken = default)
     {
         _context.ConsolidadosDiarios.Update(consolidado);
         return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(ConsolidadoDiario consolidado, CancellationToken cancellationToken = default)
+    public Task DeleteAsync(Domain.Consolidado consolidado, CancellationToken cancellationToken = default)
     {
         _context.ConsolidadosDiarios.Remove(consolidado);
         return Task.CompletedTask;
@@ -94,7 +94,7 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
             .ExecuteDeleteAsync(cancellationToken);
     }
 
-    public async Task BulkLoadConsolidadosAsync(List<(string Comerciante, DateTime Data)> keys, Dictionary<(string, DateTime), ConsolidadoDiario> cache, CancellationToken cancellationToken = default)
+    public async Task BulkLoadConsolidadosAsync(List<(string Comerciante, DateTime Data)> keys, Dictionary<(string, DateTime), Domain.Consolidado> cache, CancellationToken cancellationToken = default)
     {
         if (!keys.Any()) return;
 

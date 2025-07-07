@@ -3,34 +3,33 @@ using FluxoCaixa.Consolidado.Infrastructure.Repositories;
 using FluxoCaixa.Consolidado.Infrastructure.Messaging;
 using MediatR;
 
-namespace FluxoCaixa.Consolidado.Features.ProcessarLancamento;
+namespace FluxoCaixa.Consolidado.Features.ConsolidarLancamento;
 
-public class ProcessarLancamentoHandler : IRequestHandler<ProcessarLancamentoCommand>
+public class ConsolidarLancamentoHandler : IRequestHandler<ConsolidarLancamentoCommand>
 {
     private readonly IConsolidadoDiarioRepository _repository;
-    private readonly ILancamentoProcessadoRepository _lancamentoProcessadoRepository;
+    private readonly ILancamentoConsolidadoRepository _lancamentoConsolidadoRepository;
     private readonly IRabbitMqPublisher _rabbitMqPublisher;
-    private readonly ILogger<ProcessarLancamentoHandler> _logger;
+    private readonly ILogger<ConsolidarLancamentoHandler> _logger;
 
-    public ProcessarLancamentoHandler(
+    public ConsolidarLancamentoHandler(
         IConsolidadoDiarioRepository repository,
-        ILancamentoProcessadoRepository lancamentoProcessadoRepository,
+        ILancamentoConsolidadoRepository lancamentoProcessadoRepository,
         IRabbitMqPublisher rabbitMqPublisher,
-        ILogger<ProcessarLancamentoHandler> logger)
+        ILogger<ConsolidarLancamentoHandler> logger)
     {
         _repository = repository;
-        _lancamentoProcessadoRepository = lancamentoProcessadoRepository;
+        _lancamentoConsolidadoRepository = lancamentoProcessadoRepository;
         _rabbitMqPublisher = rabbitMqPublisher;
         _logger = logger;
     }
 
-    public async Task Handle(ProcessarLancamentoCommand request, CancellationToken cancellationToken)
+    public async Task Handle(ConsolidarLancamentoCommand request, CancellationToken cancellationToken)
     {
         var lancamento = request.LancamentoEvent;
         
-        // Verificar se o lançamento já foi processado (idempotência)
-        var jaProcessado = await _lancamentoProcessadoRepository.JaFoiProcessadoAsync(lancamento.Id, cancellationToken);
-        if (jaProcessado)
+        var jaConsolidado = await _lancamentoConsolidadoRepository.JaFoiConsolidadoAsync(lancamento.Id, cancellationToken);
+        if (jaConsolidado)
         {
             _logger.LogInformation("Lançamento {LancamentoId} já foi processado anteriormente. Ignorando duplicata.", lancamento.Id);
             return;
@@ -40,32 +39,32 @@ public class ProcessarLancamentoHandler : IRequestHandler<ProcessarLancamentoCom
 
         var consolidado = await GetOrCreateConsolidado(lancamento.Comerciante, dataConsolidacao, cancellationToken);
         
-        consolidado.ProcessarLancamento(lancamento);
+        consolidado.Consolidar(lancamento);
 
         // Marcar lançamento como processado para garantir idempotência
-        await _lancamentoProcessadoRepository.MarcarComoProcessadoAsync(lancamento.Id, cancellationToken);
+        await _lancamentoConsolidadoRepository.ConsolidarAsync(lancamento.Id, cancellationToken);
 
         await _repository.SaveChangesAsync(cancellationToken);
 
         // Enviar evento para marcar lançamento como consolidado de forma assíncrona
-        var marcarConsolidadosEvent = new MarcarConsolidadosEvent
+        var marcarConsolidadosEvent = new LancamentosConsolidadosEvent
         {
             LancamentoIds = new List<string> { lancamento.Id }
         };
         
-        await _rabbitMqPublisher.PublishMarcarConsolidadosEventAsync(marcarConsolidadosEvent);
+        await _rabbitMqPublisher.PublishLancamentoConsolidadoEventAsync(marcarConsolidadosEvent);
 
         _logger.LogInformation("Consolidado atualizado para {Comerciante} em {Data}. Saldo: {Saldo}. Evento enviado para marcar lançamento como consolidado.", 
             consolidado.Comerciante, consolidado.Data, consolidado.SaldoLiquido);
     }
 
-    private async Task<ConsolidadoDiario> GetOrCreateConsolidado(string comerciante, DateTime data, CancellationToken cancellationToken)
+    private async Task<Domain.Consolidado> GetOrCreateConsolidado(string comerciante, DateTime data, CancellationToken cancellationToken)
     {
         var consolidado = await _repository.GetByComercianteAndDataAsync(comerciante, data, cancellationToken);
 
         if (consolidado == null)
         {
-            consolidado = new ConsolidadoDiario(comerciante, data);
+            consolidado = new Domain.Consolidado(comerciante, data);
             await _repository.AddAsync(consolidado, cancellationToken);
         }
 

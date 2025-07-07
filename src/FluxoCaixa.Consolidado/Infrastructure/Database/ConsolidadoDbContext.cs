@@ -9,12 +9,12 @@ public class ConsolidadoDbContext : DbContext
     {
     }
 
-    public DbSet<ConsolidadoDiario> ConsolidadosDiarios { get; set; }
-    public DbSet<LancamentoProcessado> LancamentosProcessados { get; set; }
+    public DbSet<Domain.Consolidado> ConsolidadosDiarios { get; set; }
+    public DbSet<LancamentoConsolidado> LancamentosProcessados { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ConsolidadoDiario>(entity =>
+        modelBuilder.Entity<Domain.Consolidado>(entity =>
         {
             entity.HasKey(e => e.Id);
             
@@ -41,7 +41,7 @@ public class ConsolidadoDbContext : DbContext
             entity.Property(e => e.Comerciante).HasMaxLength(100).IsRequired();
         });
 
-        modelBuilder.Entity<LancamentoProcessado>(entity =>
+        modelBuilder.Entity<LancamentoConsolidado>(entity =>
         {
             entity.HasKey(e => e.LancamentoId);
             

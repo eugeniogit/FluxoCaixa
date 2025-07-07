@@ -46,6 +46,14 @@ As aplicações são integradas através de **RabbitMQ**:
 2. **FluxoCaixa.Consolidado** consome os eventos da fila e atualiza as consolidações
 3. **FluxoCaixa.Consolidado** também pode consultar lançamentos via API REST quando necessário
 
+### Decisões Técnicas
+
+Para entender as decisões arquiteturais e técnicas tomadas durante o desenvolvimento do projeto, consulte os documentos de Architecture Decision Records (ADRs):
+
+📋 **[Documentos de Decisões Técnicas](docs/adrs/)**
+
+- [ADR-001: Adoção de Arquitetura Serverless](docs/adrs/ADR-001.md) - Decisão sobre arquitetura serverless, banco de dados relacional e estratégias de resiliência
+
 ## 🚀 Como Executar Localmente
 
 ### Pré-requisitos
@@ -137,22 +145,56 @@ O sistema inclui um **job automático** que executa diariamente às **01:00 AM**
 
 ## 🧪 Testes
 
+O projeto inclui uma suíte completa de testes unitários e de integração para garantir a qualidade e confiabilidade do código.
+
+### Testes Unitários
+
+Os testes unitários cobrem todas as features, handlers, validadores e modelos de domínio de ambas as aplicações:
+
+- **FluxoCaixa.Lancamento.UnitTests** - Testes para todas as features do serviço de lançamentos
+- **FluxoCaixa.Consolidado.UnitTests** - Testes para todas as features do serviço de consolidação
+
+#### Executar Testes Unitários
+
+```bash
+# Executar todos os testes unitários
+dotnet test tests/FluxoCaixa.Lancamento.UnitTests/ --verbosity normal
+dotnet test tests/FluxoCaixa.Consolidado.UnitTests/ --verbosity normal
+
+# Executar todos os testes unitários em paralelo
+dotnet test tests/FluxoCaixa.Lancamento.UnitTests/ tests/FluxoCaixa.Consolidado.UnitTests/ --verbosity normal
+
+# Executar com cobertura de código
+dotnet test tests/FluxoCaixa.Lancamento.UnitTests/ --collect:"XPlat Code Coverage"
+dotnet test tests/FluxoCaixa.Consolidado.UnitTests/ --collect:"XPlat Code Coverage"
+```
+
 ### Testes de Integração
 
 O projeto inclui testes de integração abrangentes usando **TestContainers** para criar ambientes isolados.
 
-#### Executar Testes
+#### Executar Testes de Integração
 
 ```bash
 # Compilar solução
 dotnet build --configuration Release
 
-# Executar todos os testes
+# Executar todos os testes (unitários + integração)
 dotnet test --verbosity normal
 
-# Executar testes específicos
+# Executar apenas testes de integração
 dotnet test tests/FluxoCaixa.Lancamento.IntegrationTests/FluxoCaixa.Lancamento.IntegrationTests.csproj --verbosity normal
 dotnet test tests/FluxoCaixa.Consolidado.IntegrationTests/FluxoCaixa.Consolidado.IntegrationTests.csproj --verbosity normal
+```
+
+### Executar Todos os Testes
+
+```bash
+# Executar toda a suíte de testes (unitários + integração)
+dotnet test --verbosity normal
+
+# Com relatório de cobertura
+dotnet test --collect:"XPlat Code Coverage" --verbosity normal
 ```
 
 ## 🔧 Configuração

@@ -75,12 +75,12 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
 
         // Enviar evento para marcar lançamentos como consolidados de forma assíncrona
         var lancamentoIds = lancamentos.Select(l => l.Id).ToList();
-        var marcarConsolidadosEvent = new Infrastructure.Messaging.MarcarConsolidadosEvent
+        var marcarConsolidadosEvent = new Infrastructure.Messaging.LancamentosConsolidadosEvent
         {
             LancamentoIds = lancamentoIds
         };
         
-        await _rabbitMqPublisher.PublishMarcarConsolidadosEventAsync(marcarConsolidadosEvent);
+        await _rabbitMqPublisher.PublishLancamentoConsolidadoEventAsync(marcarConsolidadosEvent);
 
         _logger.LogInformation("Processamento concluído. Total de lançamentos processados: {Total}. Evento enviado para marcar como consolidados.", lancamentos.Count);
     }
@@ -96,12 +96,12 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
         var consolidado = await _repository.GetByComercianteAndDataAsync(key.Comerciante, key.Data, cancellationToken);
         if (consolidado == null)
         {
-            consolidado = new ConsolidadoDiario(key.Comerciante, key.Data);
+            consolidado = new Domain.Consolidado(key.Comerciante, key.Data);
             await _repository.AddAsync(consolidado, cancellationToken);
         }
 
         // Processar lançamentos
-        consolidado.ProcessarLancamentos(lancamentosComerciante);
+        consolidado.ConsolidarLancamentos(lancamentosComerciante);
         
         LogConsolidationResult(consolidado);
     }
@@ -114,7 +114,7 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
     }
 
 
-    private void LogConsolidationResult(ConsolidadoDiario consolidado)
+    private void LogConsolidationResult(Domain.Consolidado consolidado)
     {
         _logger.LogInformation("Consolidado atualizado para {Comerciante} em {Data}. " +
             "Créditos: {Creditos}, Débitos: {Debitos}, Saldo: {Saldo}", 

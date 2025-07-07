@@ -1,22 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir:*)",
-      "Bash(rm:*)",
-      "Bash(dotnet build)",
-      "Bash(chmod:*)",
-      "Bash(docker logs:*)",
-      "Bash(docker port:*)",
-      "Bash(taskkill:*)",
-      "Bash(pkill:*)",
-      "Bash(dotnet test:*)",
-      "Bash(find:*)",
-      "Bash(grep:*)",
-      "Bash(dotnet build:*)",
-      "Bash(rg:*)",
-      "Bash(cat:*)",
-      "Bash(mv:*)",
-      "Bash(dotnet add:*)"
+      "Bash(dotnet test:*)"
     ],
     "deny": []
   }

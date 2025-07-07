@@ -40,7 +40,7 @@ builder.Services.AddHttpClient<ILancamentoApiClient, LancamentoApiClient>();
 
 // Add Repositories
 builder.Services.AddScoped<IConsolidadoDiarioRepository, ConsolidadoDiarioRepository>();
-builder.Services.AddScoped<ILancamentoProcessadoRepository, LancamentoProcessadoRepository>();
+builder.Services.AddScoped<ILancamentoConsolidadoRepository, LancamentoProcessadoRepository>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 

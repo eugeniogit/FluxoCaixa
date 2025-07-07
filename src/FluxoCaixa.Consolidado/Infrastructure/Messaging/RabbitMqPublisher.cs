@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace FluxoCaixa.Consolidado.Infrastructure.Messaging;
 
-public class MarcarConsolidadosEvent
+public class LancamentosConsolidadosEvent
 {
     public List<string> LancamentoIds { get; set; } = new();
     public DateTime DataProcessamento { get; set; } = DateTime.UtcNow;
@@ -39,7 +39,7 @@ public class RabbitMqPublisher : IRabbitMqPublisher, IDisposable
                 });
     }
 
-    public async Task PublishMarcarConsolidadosEventAsync(MarcarConsolidadosEvent marcarConsolidadosEvent)
+    public async Task PublishLancamentoConsolidadoEventAsync(LancamentosConsolidadosEvent marcarConsolidadosEvent)
     {
         await _retryPolicy.ExecuteAsync(() =>
         {

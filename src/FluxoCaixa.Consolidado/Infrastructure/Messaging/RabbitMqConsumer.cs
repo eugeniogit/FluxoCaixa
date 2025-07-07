@@ -1,6 +1,6 @@
 using FluxoCaixa.Consolidado.Configuration;
 using FluxoCaixa.Consolidado.Domain;
-using FluxoCaixa.Consolidado.Features.ProcessarLancamento;
+using FluxoCaixa.Consolidado.Features.ConsolidarLancamento;
 using MediatR;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -49,7 +49,7 @@ public class RabbitMqConsumer : IRabbitMqConsumer, IDisposable
                         using var scope = _serviceProvider.CreateScope();
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                         
-                        var command = new ProcessarLancamentoCommand
+                        var command = new ConsolidarLancamentoCommand
                         {
                             LancamentoEvent = lancamentoEvent
                         };

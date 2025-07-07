@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FluxoCaixa.Consolidado.Domain;
 
-public class ConsolidadoDiario
+public class Consolidado
 {
     [Key]
     public int Id { get; set; }
@@ -31,9 +31,9 @@ public class ConsolidadoDiario
 
     public DateTime UltimaAtualizacao { get; private set; } = DateTime.UtcNow;
 
-    private ConsolidadoDiario() { }
+    private Consolidado() { }
 
-    public ConsolidadoDiario(string comerciante, DateTime data)
+    public Consolidado(string comerciante, DateTime data)
     {
         if (string.IsNullOrWhiteSpace(comerciante))
             throw new ArgumentException("Comerciante é obrigatório", nameof(comerciante));
@@ -78,7 +78,7 @@ public class ConsolidadoDiario
         SaldoLiquido = TotalCreditos - TotalDebitos;
     }
 
-    public void ProcessarLancamento(LancamentoEvent lancamento)
+    public void Consolidar(LancamentoEvent lancamento)
     {
         if (lancamento.IsCredito())
         {
@@ -90,11 +90,11 @@ public class ConsolidadoDiario
         }
     }
 
-    public void ProcessarLancamentos(IEnumerable<LancamentoEvent> lancamentos)
+    public void ConsolidarLancamentos(IEnumerable<LancamentoEvent> lancamentos)
     {
         foreach (var lancamento in lancamentos)
         {
-            ProcessarLancamento(lancamento);
+            Consolidar(lancamento);
         }
     }
 }
