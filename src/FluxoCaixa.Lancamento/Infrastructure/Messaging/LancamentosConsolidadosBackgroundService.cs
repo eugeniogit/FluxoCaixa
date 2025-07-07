@@ -1,13 +1,13 @@
 namespace FluxoCaixa.Lancamento.Infrastructure.Messaging;
 
-public class MarcarConsolidadosBackgroundService : BackgroundService
+public class LancamentosConsolidadosBackgroundService : BackgroundService
 {
-    private readonly MarcarConsolidadosConsumer _consumer;
-    private readonly ILogger<MarcarConsolidadosBackgroundService> _logger;
+    private readonly LancamentosConsolidadosConsumer _consumer;
+    private readonly ILogger<LancamentosConsolidadosBackgroundService> _logger;
 
-    public MarcarConsolidadosBackgroundService(
-        MarcarConsolidadosConsumer consumer,
-        ILogger<MarcarConsolidadosBackgroundService> logger)
+    public LancamentosConsolidadosBackgroundService(
+        LancamentosConsolidadosConsumer consumer,
+        ILogger<LancamentosConsolidadosBackgroundService> logger)
     {
         _consumer = consumer;
         _logger = logger;

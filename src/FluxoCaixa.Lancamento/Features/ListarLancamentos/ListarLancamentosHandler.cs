@@ -6,9 +6,9 @@ namespace FluxoCaixa.Lancamento.Features.ListarLancamentos;
 
 public class ListarLancamentosHandler : IRequestHandler<ListarLancamentosQuery, ListarLancamentosResponse>
 {
-    private readonly IMongoDbContext _context;
+    private readonly IDbContext _context;
 
-    public ListarLancamentosHandler(IMongoDbContext context)
+    public ListarLancamentosHandler(IDbContext context)
     {
         _context = context;
     }

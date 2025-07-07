@@ -1,5 +1,5 @@
-using FluxoCaixa.Lancamento.Configuration;
 using FluxoCaixa.Lancamento.Domain;
+using FluxoCaixa.Lancamento.Infrastructure.Messaging.Abstractions;
 using Microsoft.Extensions.Options;
 using Polly;
 using RabbitMQ.Client;
@@ -8,15 +8,16 @@ using System.Text.Json;
 
 namespace FluxoCaixa.Lancamento.Infrastructure.Messaging;
 
-public class RabbitMqPublisher : IRabbitMqPublisher, IDisposable
+public class LancamentoPublisher : IMessagePublisher, IDisposable
 {
-    private readonly RabbitMqSettings _settings;
-    private readonly ILogger<RabbitMqPublisher> _logger;
+    private readonly MessageBrokerSettings _settings;
+    private readonly ILogger<LancamentoPublisher> _logger;
     private readonly IAsyncPolicy _retryPolicy;
     private IConnection? _connection;
     private IModel? _channel;
+    private bool _disposed = false;
 
-    public RabbitMqPublisher(IOptions<RabbitMqSettings> options, ILogger<RabbitMqPublisher> logger)
+    public LancamentoPublisher(IOptions<MessageBrokerSettings> options, ILogger<LancamentoPublisher> logger)
     {
         _settings = options.Value;
         _logger = logger;
@@ -33,30 +34,43 @@ public class RabbitMqPublisher : IRabbitMqPublisher, IDisposable
                 });
     }
 
-    public async Task PublishLancamentoEventAsync(LancamentoEvent lancamentoEvent)
+    public async Task PublishAsync<T>(T message, string destination)
     {
+        if (_disposed)
+        {
+            _logger.LogWarning("Tentativa de publicar mensagem em publisher descartado");
+            return;
+        }
+
         await _retryPolicy.ExecuteAsync(() =>
         {
+            if (_disposed) return Task.CompletedTask;
+            
             EnsureConnection();
             
-            var message = JsonSerializer.Serialize(lancamentoEvent);
-            var body = Encoding.UTF8.GetBytes(message);
+            var messageJson = JsonSerializer.Serialize(message);
+            var body = Encoding.UTF8.GetBytes(messageJson);
 
             _channel!.BasicPublish(
                 exchange: "",
-                routingKey: _settings.QueueName,
+                routingKey: destination,
                 basicProperties: null,
                 body: body);
 
-            _logger.LogInformation("Evento de lançamento publicado: {LancamentoId}", lancamentoEvent.Id);
+            _logger.LogInformation("Mensagem publicada para {Destination}: {MessageType}", destination, typeof(T).Name);
             
             return Task.CompletedTask;
         });
     }
 
+    public async Task PublishLancamentoEventAsync(LancamentoEvent lancamentoEvent)
+    {
+        await PublishAsync(lancamentoEvent, _settings.QueueName);
+    }
+
     private void EnsureConnection()
     {
-        if (_connection?.IsOpen == true && _channel?.IsOpen == true)
+        if (_disposed || (_connection?.IsOpen == true && _channel?.IsOpen == true))
             return;
 
         try
@@ -72,12 +86,7 @@ public class RabbitMqPublisher : IRabbitMqPublisher, IDisposable
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
 
-            _channel.QueueDeclare(
-                queue: _settings.QueueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
+            DeclareQueue(_settings.QueueName);
 
             _logger.LogInformation("Conexão com RabbitMQ estabelecida");
         }
@@ -88,11 +97,34 @@ public class RabbitMqPublisher : IRabbitMqPublisher, IDisposable
         }
     }
 
+    private void DeclareQueue(string queueName)
+    {
+        _channel?.QueueDeclare(
+            queue: queueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            arguments: null);
+    }
+
     public void Dispose()
     {
-        _channel?.Close();
-        _connection?.Close();
-        _channel?.Dispose();
-        _connection?.Dispose();
+        if (_disposed) return;
+        
+        try
+        {
+            _channel?.Close();
+            _connection?.Close();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Erro ao fechar conexão RabbitMQ durante dispose");
+        }
+        finally
+        {
+            _channel?.Dispose();
+            _connection?.Dispose();
+            _disposed = true;
+        }
     }
 }

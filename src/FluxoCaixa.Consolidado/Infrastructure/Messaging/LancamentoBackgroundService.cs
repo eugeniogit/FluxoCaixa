@@ -1,11 +1,13 @@
+using FluxoCaixa.Consolidado.Infrastructure.Messaging.Abstractions;
+
 namespace FluxoCaixa.Consolidado.Infrastructure.Messaging;
 
-public class RabbitMqBackgroundService : BackgroundService
+public class LancamentoBackgroundService : BackgroundService
 {
-    private readonly IRabbitMqConsumer _consumer;
-    private readonly ILogger<RabbitMqBackgroundService> _logger;
+    private readonly LancamentoConsumer _consumer;
+    private readonly ILogger<LancamentoBackgroundService> _logger;
 
-    public RabbitMqBackgroundService(IRabbitMqConsumer consumer, ILogger<RabbitMqBackgroundService> logger)
+    public LancamentoBackgroundService(LancamentoConsumer consumer, ILogger<LancamentoBackgroundService> logger)
     {
         _consumer = consumer;
         _logger = logger;

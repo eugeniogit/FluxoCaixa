@@ -1,5 +1,3 @@
-using FluxoCaixa.Consolidado.Domain;
-
 namespace FluxoCaixa.Consolidado.Infrastructure.Repositories;
 
 public interface IConsolidadoDiarioRepository

@@ -3,6 +3,7 @@ using FluxoCaixa.Consolidado.Features.ConsolidarLancamento;
 using FluxoCaixa.Consolidado.Infrastructure.Database;
 using FluxoCaixa.Consolidado.Infrastructure.ExternalServices;
 using FluxoCaixa.Consolidado.Infrastructure.Messaging;
+using FluxoCaixa.Consolidado.Infrastructure.Messaging.Abstractions;
 using FluxoCaixa.Consolidado.Infrastructure.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +57,31 @@ public class ConsolidadoTestFactory : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        _serviceProvider?.Dispose();
+        try
+        {
+            // Dispose services first to close RabbitMQ connections properly
+            if (_serviceProvider != null)
+            {
+                // Get and dispose messaging services explicitly
+                try
+                {
+                    var publisher = _serviceProvider.GetService<LancamentosConsolidadosPublisher>();
+                    publisher?.Dispose();
+                    
+                    var consumer = _serviceProvider.GetService<LancamentoConsumer>();
+                    consumer?.Dispose();
+                }
+                catch { }
+                
+                _serviceProvider.Dispose();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log but don't throw during dispose
+            Console.WriteLine($"Error disposing services: {ex.Message}");
+        }
+        
         await _postgresContainer.DisposeAsync();
         await _rabbitMqContainer.DisposeAsync();
     }
@@ -81,7 +106,7 @@ public class ConsolidadoTestFactory : IAsyncLifetime
         });
 
         // RabbitMQ
-        services.Configure<RabbitMqSettings>(options =>
+        services.Configure<MessageBrokerSettings>(options =>
         {
             options.HostName = _rabbitMqContainer.Hostname;
             options.Port = _rabbitMqContainer.GetMappedPublicPort(5672);
@@ -90,7 +115,10 @@ public class ConsolidadoTestFactory : IAsyncLifetime
             options.QueueName = "lancamento_events";
         });
 
-        services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+        services.AddSingleton<IMessageBrokerFactory, MessageBrokerFactory>();
+        services.AddSingleton<LancamentosConsolidadosPublisher>();
+        services.AddSingleton<IMessagePublisher>(provider => 
+            provider.GetRequiredService<IMessageBrokerFactory>().CreatePublisher());
 
         // MediatR
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ConsolidarLancamentoHandler).Assembly));
@@ -135,5 +163,28 @@ public class ConsolidadoTestFactory : IAsyncLifetime
     public string GetRabbitMqConnectionString()
     {
         return _rabbitMqContainer.GetConnectionString();
+    }
+
+    public void CleanupMessaging()
+    {
+        try
+        {
+            // Force disposal of messaging components to avoid connection issues
+            var publisher = _serviceProvider?.GetService<LancamentosConsolidadosPublisher>();
+            if (publisher is IDisposable disposablePublisher)
+            {
+                disposablePublisher.Dispose();
+            }
+
+            var consumer = _serviceProvider?.GetService<LancamentoConsumer>();
+            if (consumer is IDisposable disposableConsumer)
+            {
+                disposableConsumer.Dispose();
+            }
+        }
+        catch
+        {
+            // Ignore cleanup errors
+        }
     }
 }

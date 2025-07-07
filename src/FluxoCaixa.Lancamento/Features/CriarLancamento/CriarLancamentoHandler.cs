@@ -1,19 +1,19 @@
 using FluxoCaixa.Lancamento.Domain;
 using FluxoCaixa.Lancamento.Infrastructure.Database;
-using FluxoCaixa.Lancamento.Infrastructure.Messaging;
+using FluxoCaixa.Lancamento.Infrastructure.Messaging.Abstractions;
 using MediatR;
 
 namespace FluxoCaixa.Lancamento.Features.CriarLancamento;
 
 public class CriarLancamentoHandler : IRequestHandler<CriarLancamentoCommand, CriarLancamentoResponse>
 {
-    private readonly IMongoDbContext _context;
-    private readonly IRabbitMqPublisher _publisher;
+    private readonly IDbContext _context;
+    private readonly IMessagePublisher _publisher;
     private readonly ILogger<CriarLancamentoHandler> _logger;
 
     public CriarLancamentoHandler(
-        IMongoDbContext context, 
-        IRabbitMqPublisher publisher,
+        IDbContext context, 
+        IMessagePublisher publisher,
         ILogger<CriarLancamentoHandler> logger)
     {
         _context = context;
@@ -43,7 +43,7 @@ public class CriarLancamentoHandler : IRequestHandler<CriarLancamentoCommand, Cr
         try
         {
             var lancamentoEvent = LancamentoEvent.FromLancamento(lancamento);
-            await _publisher.PublishLancamentoEventAsync(lancamentoEvent);
+            await _publisher.PublishAsync(lancamentoEvent, "lancamento_events");
         }
         catch (Exception ex)
         {

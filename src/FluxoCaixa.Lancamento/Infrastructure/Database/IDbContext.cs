@@ -2,7 +2,7 @@ using MongoDB.Driver;
 
 namespace FluxoCaixa.Lancamento.Infrastructure.Database;
 
-public interface IMongoDbContext
+public interface IDbContext
 {
     IMongoCollection<Domain.Lancamento> Lancamentos { get; }
 }

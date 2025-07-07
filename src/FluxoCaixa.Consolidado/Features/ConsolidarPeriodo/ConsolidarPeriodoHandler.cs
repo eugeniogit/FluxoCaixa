@@ -1,6 +1,6 @@
 using FluxoCaixa.Consolidado.Domain;
 using FluxoCaixa.Consolidado.Infrastructure.ExternalServices;
-using FluxoCaixa.Consolidado.Infrastructure.Messaging;
+using FluxoCaixa.Consolidado.Infrastructure.Messaging.Abstractions;
 using FluxoCaixa.Consolidado.Infrastructure.Repositories;
 using MediatR;
 
@@ -10,18 +10,18 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
 {
     private readonly IConsolidadoDiarioRepository _repository;
     private readonly ILancamentoApiClient _lancamentoApiClient;
-    private readonly IRabbitMqPublisher _rabbitMqPublisher;
+    private readonly IMessagePublisher _messagePublisher;
     private readonly ILogger<ConsolidarPeriodoHandler> _logger;
 
     public ConsolidarPeriodoHandler(
         IConsolidadoDiarioRepository repository,
         ILancamentoApiClient lancamentoApiClient,
-        IRabbitMqPublisher rabbitMqPublisher,
+        IMessagePublisher messagePublisher,
         ILogger<ConsolidarPeriodoHandler> logger)
     {
         _repository = repository;
         _lancamentoApiClient = lancamentoApiClient;
-        _rabbitMqPublisher = rabbitMqPublisher;
+        _messagePublisher = messagePublisher;
         _logger = logger;
     }
 
@@ -70,12 +70,12 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
         await _repository.SaveChangesAsync(cancellationToken);
 
         var lancamentoIds = lancamentos.Select(l => l.Id).ToList();
-        var marcarConsolidadosEvent = new Infrastructure.Messaging.LancamentosConsolidadosEvent
+        var marcarConsolidadosEvent = new LancamentosConsolidadosEvent
         {
             LancamentoIds = lancamentoIds
         };
         
-        await _rabbitMqPublisher.PublishLancamentoConsolidadoEventAsync(marcarConsolidadosEvent);
+        await _messagePublisher.PublishAsync(marcarConsolidadosEvent, "marcar_consolidados_events");
 
         _logger.LogInformation("Processamento concluído. Total de lançamentos processados: {Total}. Evento enviado para marcar como consolidados.", lancamentos.Count);
     }

@@ -6,10 +6,10 @@ namespace FluxoCaixa.Lancamento.Features.ConsolidarLancamentos;
 
 public class ConsolidarLancamentosHandler : IRequestHandler<ConsolidarLancamentosCommand>
 {
-    private readonly IMongoDbContext _context;
+    private readonly IDbContext _context;
     private readonly ILogger<ConsolidarLancamentosHandler> _logger;
 
-    public ConsolidarLancamentosHandler(IMongoDbContext context, ILogger<ConsolidarLancamentosHandler> logger)
+    public ConsolidarLancamentosHandler(IDbContext context, ILogger<ConsolidarLancamentosHandler> logger)
     {
         _context = context;
         _logger = logger;

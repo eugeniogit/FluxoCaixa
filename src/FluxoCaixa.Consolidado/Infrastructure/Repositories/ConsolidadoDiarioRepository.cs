@@ -1,4 +1,3 @@
-using FluxoCaixa.Consolidado.Domain;
 using FluxoCaixa.Consolidado.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 

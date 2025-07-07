@@ -2,6 +2,7 @@ using FluxoCaixa.Lancamento.Configuration;
 using FluxoCaixa.Lancamento.Features.CriarLancamento;
 using FluxoCaixa.Lancamento.Infrastructure.Database;
 using FluxoCaixa.Lancamento.Infrastructure.Messaging;
+using FluxoCaixa.Lancamento.Infrastructure.Messaging.Abstractions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -49,7 +50,28 @@ public class LancamentoTestFactory : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        _serviceProvider?.Dispose();
+        try
+        {
+            // Dispose services first to close RabbitMQ connections properly
+            if (_serviceProvider != null)
+            {
+                // Get and dispose messaging services explicitly
+                try
+                {
+                    var publisher = _serviceProvider.GetService<LancamentoPublisher>();
+                    publisher?.Dispose();
+                }
+                catch { }
+                
+                _serviceProvider.Dispose();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log but don't throw during dispose
+            Console.WriteLine($"Error disposing services: {ex.Message}");
+        }
+        
         await _mongoContainer.DisposeAsync();
         await _rabbitMqContainer.DisposeAsync();
     }
@@ -64,9 +86,9 @@ public class LancamentoTestFactory : IAsyncLifetime
             options.DatabaseName = "FluxoCaixaTest";
         });
 
-        services.AddSingleton<IMongoDbContext, MongoDbContext>();
+        services.AddSingleton<IDbContext, DbContext>();
 
-        services.Configure<RabbitMqSettings>(options =>
+        services.Configure<MessageBrokerSettings>(options =>
         {
             options.HostName = _rabbitMqContainer.Hostname;
             options.Port = _rabbitMqContainer.GetMappedPublicPort(5672);
@@ -75,7 +97,10 @@ public class LancamentoTestFactory : IAsyncLifetime
             options.QueueName = "lancamento_events";
         });
 
-        services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+        services.AddSingleton<IMessageBrokerFactory, MessageBrokerFactory>();
+        services.AddSingleton<LancamentoPublisher>();
+        services.AddSingleton<IMessagePublisher>(provider => 
+            provider.GetRequiredService<IMessageBrokerFactory>().CreatePublisher());
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CriarLancamentoHandler).Assembly));
     }
@@ -88,9 +113,9 @@ public class LancamentoTestFactory : IAsyncLifetime
         return _serviceProvider.GetRequiredService<T>();
     }
 
-    public IMongoDbContext GetDbContext()
+    public IDbContext GetDbContext()
     {
-        return GetService<IMongoDbContext>();
+        return GetService<IDbContext>();
     }
 
     public IMediator GetMediator()
@@ -112,5 +137,22 @@ public class LancamentoTestFactory : IAsyncLifetime
     {
         var dbContext = GetDbContext();
         await dbContext.Lancamentos.DeleteManyAsync(_ => true);
+    }
+
+    public void CleanupMessaging()
+    {
+        try
+        {
+            // Force disposal of messaging components to avoid connection issues
+            var publisher = _serviceProvider?.GetService<LancamentoPublisher>();
+            if (publisher is IDisposable disposablePublisher)
+            {
+                disposablePublisher.Dispose();
+            }
+        }
+        catch
+        {
+            // Ignore cleanup errors
+        }
     }
 }

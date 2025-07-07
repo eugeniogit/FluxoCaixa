@@ -4,11 +4,11 @@ using MongoDB.Driver;
 
 namespace FluxoCaixa.Lancamento.Infrastructure.Database;
 
-public class MongoDbContext : IMongoDbContext
+public class DbContext : IDbContext
 {
     private readonly IMongoDatabase _database;
 
-    public MongoDbContext(IOptions<MongoDbSettings> options)
+    public DbContext(IOptions<MongoDbSettings> options)
     {
         var client = new MongoClient(options.Value.ConnectionString);
         _database = client.GetDatabase(options.Value.DatabaseName);

@@ -10,7 +10,7 @@ public static class DatabaseExtensions
         services.Configure<MongoDbSettings>(
             configuration.GetSection("MongoDbSettings"));
         
-        services.AddSingleton<IMongoDbContext, MongoDbContext>();
+        services.AddSingleton<IDbContext, DbContext>();
         
         return services;
     }

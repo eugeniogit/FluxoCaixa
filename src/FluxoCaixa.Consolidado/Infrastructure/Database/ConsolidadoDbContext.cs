@@ -10,7 +10,7 @@ public class ConsolidadoDbContext : DbContext
     }
 
     public DbSet<Domain.Consolidado> Consolidados { get; set; }
-    public DbSet<Lancamento> Lancamentos { get; set; }
+    public DbSet<Domain.Lancamento> Lancamentos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -67,7 +67,7 @@ public class ConsolidadoDbContext : DbContext
                 .HasDatabaseName("IX_ConsolidadoDiario_Data_Comerciante");
         });
 
-        modelBuilder.Entity<Lancamento>(entity =>
+        modelBuilder.Entity<Domain.Lancamento>(entity =>
         {
             entity.HasKey(e => e.LancamentoId);
             

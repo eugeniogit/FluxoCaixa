@@ -1,7 +1,7 @@
 using FluxoCaixa.Consolidado.Domain;
-using FluxoCaixa.Consolidado.Infrastructure.Repositories;
-using FluxoCaixa.Consolidado.Infrastructure.Messaging;
 using MediatR;
+using FluxoCaixa.Consolidado.Infrastructure.Repositories;
+using FluxoCaixa.Consolidado.Infrastructure.Messaging.Abstractions;
 
 namespace FluxoCaixa.Consolidado.Features.ConsolidarLancamento;
 
@@ -9,18 +9,18 @@ public class ConsolidarLancamentoHandler : IRequestHandler<ConsolidarLancamentoC
 {
     private readonly IConsolidadoDiarioRepository _repository;
     private readonly ILancamentoConsolidadoRepository _lancamentoConsolidadoRepository;
-    private readonly IRabbitMqPublisher _rabbitMqPublisher;
+    private readonly IMessagePublisher _messagePublisher;
     private readonly ILogger<ConsolidarLancamentoHandler> _logger;
 
     public ConsolidarLancamentoHandler(
         IConsolidadoDiarioRepository repository,
         ILancamentoConsolidadoRepository lancamentoProcessadoRepository,
-        IRabbitMqPublisher rabbitMqPublisher,
+        IMessagePublisher messagePublisher,
         ILogger<ConsolidarLancamentoHandler> logger)
     {
         _repository = repository;
         _lancamentoConsolidadoRepository = lancamentoProcessadoRepository;
-        _rabbitMqPublisher = rabbitMqPublisher;
+        _messagePublisher = messagePublisher;
         _logger = logger;
     }
 
@@ -51,7 +51,7 @@ public class ConsolidarLancamentoHandler : IRequestHandler<ConsolidarLancamentoC
             LancamentoIds = new List<string> { lancamento.Id }
         };
         
-        await _rabbitMqPublisher.PublishLancamentoConsolidadoEventAsync(marcarConsolidadosEvent);
+        await _messagePublisher.PublishAsync(marcarConsolidadosEvent, "marcar_consolidados_events");
 
         _logger.LogInformation("Consolidado atualizado para {Comerciante} em {Data}. Saldo: {Saldo}. Evento enviado para marcar lançamento como consolidado.", 
             consolidado.Comerciante, consolidado.Data, consolidado.SaldoLiquido);

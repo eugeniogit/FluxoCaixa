@@ -2,7 +2,7 @@ using FluxoCaixa.Consolidado.Features.ConsolidarPeriodo;
 using MediatR;
 using Quartz;
 
-namespace FluxoCaixa.Consolidado.Jobs;
+namespace FluxoCaixa.Consolidado.Infrastructure.Jobs;
 
 public class ConsolidacaoDiariaJob : IJob
 {
