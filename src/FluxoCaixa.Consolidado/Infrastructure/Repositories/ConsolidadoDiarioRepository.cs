@@ -15,20 +15,20 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
 
     public async Task<Domain.Consolidado?> GetByComercianteAndDataAsync(string comerciante, DateTime data, CancellationToken cancellationToken = default)
     {
-        return await _context.ConsolidadosDiarios
+        return await _context.Consolidados
             .FirstOrDefaultAsync(c => c.Comerciante == comerciante && c.Data == data.Date, cancellationToken);
     }
 
     public async Task<List<Domain.Consolidado>> GetByDataAsync(DateTime data, CancellationToken cancellationToken = default)
     {
-        return await _context.ConsolidadosDiarios
+        return await _context.Consolidados
             .Where(c => c.Data == data.Date)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<List<Domain.Consolidado>> GetByPeriodoAsync(DateTime dataInicio, DateTime dataFim, CancellationToken cancellationToken = default)
     {
-        return await _context.ConsolidadosDiarios
+        return await _context.Consolidados
             .Where(c => c.Data >= dataInicio.Date && c.Data <= dataFim.Date)
             .OrderBy(c => c.Data)
             .ThenBy(c => c.Comerciante)
@@ -37,7 +37,7 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
 
     public async Task<List<Domain.Consolidado>> GetByComerciante(string comerciante, CancellationToken cancellationToken = default)
     {
-        return await _context.ConsolidadosDiarios
+        return await _context.Consolidados
             .Where(c => c.Comerciante == comerciante)
             .OrderBy(c => c.Data)
             .ToListAsync(cancellationToken);
@@ -45,18 +45,18 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
 
     public async Task AddAsync(Domain.Consolidado consolidado, CancellationToken cancellationToken = default)
     {
-        await _context.ConsolidadosDiarios.AddAsync(consolidado, cancellationToken);
+        await _context.Consolidados.AddAsync(consolidado, cancellationToken);
     }
 
     public Task UpdateAsync(Domain.Consolidado consolidado, CancellationToken cancellationToken = default)
     {
-        _context.ConsolidadosDiarios.Update(consolidado);
+        _context.Consolidados.Update(consolidado);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Domain.Consolidado consolidado, CancellationToken cancellationToken = default)
     {
-        _context.ConsolidadosDiarios.Remove(consolidado);
+        _context.Consolidados.Remove(consolidado);
         return Task.CompletedTask;
     }
 
@@ -65,13 +65,13 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
         var consolidacoes = await GetByDataAsync(data, cancellationToken);
         if (consolidacoes.Any())
         {
-            _context.ConsolidadosDiarios.RemoveRange(consolidacoes);
+            _context.Consolidados.RemoveRange(consolidacoes);
         }
     }
 
     public async Task<bool> ExistsAsync(string comerciante, DateTime data, CancellationToken cancellationToken = default)
     {
-        return await _context.ConsolidadosDiarios
+        return await _context.Consolidados
             .AnyAsync(c => c.Comerciante == comerciante && c.Data == data.Date, cancellationToken);
     }
 
@@ -82,14 +82,14 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
 
     public async Task DeleteByPeriodoAsync(DateTime dataInicio, DateTime dataFim, CancellationToken cancellationToken = default)
     {
-        await _context.ConsolidadosDiarios
+        await _context.Consolidados
             .Where(c => c.Data >= dataInicio.Date && c.Data <= dataFim.Date)
             .ExecuteDeleteAsync(cancellationToken);
     }
 
     public async Task DeleteByPeriodoAndComercianteAsync(DateTime dataInicio, DateTime dataFim, string comerciante, CancellationToken cancellationToken = default)
     {
-        await _context.ConsolidadosDiarios
+        await _context.Consolidados
             .Where(c => c.Data >= dataInicio.Date && c.Data <= dataFim.Date && c.Comerciante == comerciante)
             .ExecuteDeleteAsync(cancellationToken);
     }
@@ -105,7 +105,7 @@ public class ConsolidadoDiarioRepository : IConsolidadoDiarioRepository
         var dataFim = keysToLoad.Max(k => k.Data);
         var comerciantes = keysToLoad.Select(k => k.Comerciante).Distinct().ToList();
 
-        var consolidados = await _context.ConsolidadosDiarios
+        var consolidados = await _context.Consolidados
             .Where(c => c.Data >= dataInicio && c.Data <= dataFim && comerciantes.Contains(c.Comerciante))
             .ToListAsync(cancellationToken);
 

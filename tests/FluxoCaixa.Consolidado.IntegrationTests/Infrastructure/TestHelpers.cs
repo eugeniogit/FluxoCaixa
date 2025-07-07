@@ -1,0 +1,154 @@
+using FluxoCaixa.Consolidado.Domain;
+using FluxoCaixa.Consolidado.Features.ConsolidarLancamento;
+using FluxoCaixa.Consolidado.Features.ConsolidarPeriodo;
+using Microsoft.EntityFrameworkCore;
+
+namespace FluxoCaixa.Consolidado.IntegrationTests.Infrastructure;
+
+public static class TestHelpers
+{
+    public static ConsolidarLancamentoCommand CreateConsolidarLancamentoCommand(
+        string? id = null,
+        string? comerciante = null,
+        decimal? valor = null,
+        TipoLancamento? tipo = null,
+        DateTime? data = null,
+        string? descricao = null)
+    {
+        return new ConsolidarLancamentoCommand
+        {
+            LancamentoEvent = new LancamentoEvent
+            {
+                Id = id ?? Guid.NewGuid().ToString(),
+                Comerciante = comerciante ?? "Comerciante Teste",
+                Valor = valor ?? 100.50m,
+                Tipo = tipo ?? TipoLancamento.Credito,
+                Data = data ?? DateTime.Now,
+                Descricao = descricao ?? "Descrição teste",
+                DataLancamento = DateTime.UtcNow
+            }
+        };
+    }
+
+    public static ConsolidarPeriodoCommand CreateConsolidarPeriodoCommand(
+        DateTime? dataInicio = null,
+        DateTime? dataFim = null,
+        string? comerciante = null)
+    {
+        return new ConsolidarPeriodoCommand
+        {
+            DataInicio = dataInicio ?? DateTime.Today.AddDays(-7),
+            DataFim = dataFim ?? DateTime.Today,
+            Comerciante = comerciante
+        };
+    }
+
+    public static LancamentoEvent CreateLancamentoEvent(
+        string? id = null,
+        string? comerciante = null,
+        decimal? valor = null,
+        TipoLancamento? tipo = null,
+        DateTime? data = null,
+        string? descricao = null)
+    {
+        return new LancamentoEvent
+        {
+            Id = id ?? Guid.NewGuid().ToString(),
+            Comerciante = comerciante ?? "Comerciante Teste",
+            Valor = valor ?? 100.50m,
+            Tipo = tipo ?? TipoLancamento.Credito,
+            Data = data ?? DateTime.Now,
+            Descricao = descricao ?? "Descrição teste",
+            DataLancamento = DateTime.UtcNow
+        };
+    }
+
+    public static async Task<Domain.Consolidado> CreateConsolidadoInDatabase(
+        ConsolidadoTestFactory factory,
+        string? comerciante = null,
+        DateTime? data = null,
+        decimal totalCreditos = 0,
+        decimal totalDebitos = 0,
+        int quantidadeCreditos = 0,
+        int quantidadeDebitos = 0)
+    {
+        var dbContext = factory.GetDbContext();
+        var consolidado = new Domain.Consolidado(
+            comerciante ?? "Comerciante Teste",
+            data ?? DateTime.Today
+        );
+
+        // Add some transactions if specified
+        for (int i = 0; i < quantidadeCreditos; i++)
+        {
+            consolidado.AdicionarCredito(totalCreditos / Math.Max(quantidadeCreditos, 1));
+        }
+
+        for (int i = 0; i < quantidadeDebitos; i++)
+        {
+            consolidado.AdicionarDebito(totalDebitos / Math.Max(quantidadeDebitos, 1));
+        }
+
+        dbContext.Consolidados.Add(consolidado);
+        await dbContext.SaveChangesAsync();
+        
+        return consolidado;
+    }
+
+    public static async Task<List<LancamentoEvent>> CreateMultipleLancamentoEvents(
+        int count,
+        string? comerciante = null,
+        DateTime? baseDate = null,
+        TipoLancamento? tipo = null)
+    {
+        var events = new List<LancamentoEvent>();
+        var date = baseDate ?? DateTime.Today;
+
+        for (int i = 0; i < count; i++)
+        {
+            events.Add(CreateLancamentoEvent(
+                comerciante: comerciante ?? $"Comerciante {i + 1}",
+                valor: (i + 1) * 10.5m,
+                tipo: tipo ?? (i % 2 == 0 ? TipoLancamento.Credito : TipoLancamento.Debito),
+                data: date.AddDays(i)
+            ));
+        }
+
+        return events;
+    }
+
+    public static async Task ClearDatabase(ConsolidadoTestFactory factory)
+    {
+        var dbContext = factory.GetDbContext();
+        
+        dbContext.Consolidados.RemoveRange(dbContext.Consolidados);
+        dbContext.LancamentosConsolidados.RemoveRange(dbContext.LancamentosConsolidados);
+        
+        await dbContext.SaveChangesAsync();
+    }
+
+    public static async Task<Domain.Consolidado?> GetConsolidadoFromDatabase(
+        ConsolidadoTestFactory factory,
+        string comerciante,
+        DateTime data)
+    {
+        var dbContext = factory.GetDbContext();
+        return await dbContext.Consolidados
+            .FirstOrDefaultAsync(c => c.Comerciante == comerciante && c.Data == data.Date);
+    }
+
+    public static async Task<bool> IsLancamentoConsolidado(
+        ConsolidadoTestFactory factory,
+        string lancamentoId)
+    {
+        var dbContext = factory.GetDbContext();
+        return await dbContext.LancamentosConsolidados
+            .AnyAsync(lc => lc.LancamentoId == lancamentoId);
+    }
+
+    public static async Task<List<Domain.Consolidado>> GetAllConsolidados(ConsolidadoTestFactory factory)
+    {
+        var dbContext = factory.GetDbContext();
+        return await dbContext.Consolidados.ToListAsync();
+    }
+}

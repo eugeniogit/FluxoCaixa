@@ -9,8 +9,8 @@ public class ConsolidadoDbContext : DbContext
     {
     }
 
-    public DbSet<Domain.Consolidado> ConsolidadosDiarios { get; set; }
-    public DbSet<LancamentoConsolidado> LancamentosProcessados { get; set; }
+    public DbSet<Domain.Consolidado> Consolidados { get; set; }
+    public DbSet<LancamentoConsolidado> LancamentosConsolidados { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

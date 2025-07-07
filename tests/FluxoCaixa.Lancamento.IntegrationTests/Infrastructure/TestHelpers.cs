@@ -1,0 +1,80 @@
+using FluxoCaixa.Lancamento.Domain;
+using FluxoCaixa.Lancamento.Features.CriarLancamento;
+using FluxoCaixa.Lancamento.Features.MarcarConsolidados;
+
+namespace FluxoCaixa.Lancamento.IntegrationTests.Infrastructure;
+
+public static class TestHelpers
+{
+    public static CriarLancamentoCommand CreateValidCriarLancamentoCommand(
+        string? comerciante = null,
+        decimal? valor = null,
+        TipoLancamento? tipo = null,
+        DateTime? data = null,
+        string? descricao = null)
+    {
+        return new CriarLancamentoCommand
+        {
+            Comerciante = comerciante ?? "Comerciante Teste",
+            Valor = valor ?? 100.50m,
+            Tipo = tipo ?? TipoLancamento.Credito,
+            Data = data ?? DateTime.UtcNow,
+            Descricao = descricao ?? "Descrição teste"
+        };
+    }
+
+    public static MarcarConsolidadosCommand CreateMarcarConsolidadosCommand(params string[] lancamentoIds)
+    {
+        return new MarcarConsolidadosCommand
+        {
+            LancamentoIds = lancamentoIds.ToList()
+        };
+    }
+
+    public static async Task<Domain.Lancamento> CreateLancamentoInDatabase(
+        LancamentoTestFactory factory,
+        string? comerciante = null,
+        decimal? valor = null,
+        TipoLancamento? tipo = null,
+        DateTime? data = null,
+        string? descricao = null)
+    {
+        var dbContext = factory.GetDbContext();
+        var lancamento = new Domain.Lancamento(
+            comerciante ?? "Comerciante Teste",
+            valor ?? 100.50m,
+            tipo ?? TipoLancamento.Credito,
+            data ?? DateTime.UtcNow,
+            descricao ?? "Descrição teste"
+        );
+
+        await dbContext.Lancamentos.InsertOneAsync(lancamento);
+        return lancamento;
+    }
+
+    public static async Task<List<Domain.Lancamento>> CreateMultipleLancamentosInDatabase(
+        LancamentoTestFactory factory,
+        int count,
+        string? comerciante = null,
+        TipoLancamento? tipo = null)
+    {
+        var lancamentos = new List<Domain.Lancamento>();
+        var dbContext = factory.GetDbContext();
+
+        for (int i = 0; i < count; i++)
+        {
+            var lancamento = new Domain.Lancamento(
+                comerciante ?? $"Comerciante {i + 1}",
+                (i + 1) * 10.5m,
+                tipo ?? (i % 2 == 0 ? TipoLancamento.Credito : TipoLancamento.Debito),
+                DateTime.UtcNow.AddDays(-i),
+                $"Descrição {i + 1}"
+            );
+
+            await dbContext.Lancamentos.InsertOneAsync(lancamento);
+            lancamentos.Add(lancamento);
+        }
+
+        return lancamentos;
+    }
+}
