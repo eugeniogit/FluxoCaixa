@@ -33,7 +33,6 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
 
         try
         {
-            // Buscar apenas lançamentos não consolidados
             await ProcessLancamentosNaoConsolidados(dataInicio, dataFim, request.Comerciante, cancellationToken);
 
             _logger.LogInformation("Consolidação concluída para período {DataInicio} até {DataFim}", dataInicio, dataFim);
@@ -50,7 +49,6 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
     {
         _logger.LogInformation("Buscando lançamentos não consolidados para período {DataInicio} até {DataFim}", dataInicio, dataFim);
 
-        // Buscar apenas lançamentos não consolidados
         var lancamentos = await _lancamentoApiClient.GetLancamentosByPeriodoAsync(
             dataInicio, dataFim, comerciante, consolidado: false);
 
@@ -62,10 +60,8 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
 
         _logger.LogInformation("Processando {Count} lançamentos não consolidados", lancamentos.Count);
 
-        // Agrupar lançamentos por comerciante/data
         var grupos = lancamentos.GroupBy(l => (l.Comerciante, l.Data.Date));
 
-        // Processar cada grupo
         foreach (var grupo in grupos)
         {
             await ProcessMerchantDateGroup(grupo, cancellationToken);
@@ -73,7 +69,6 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
 
         await _repository.SaveChangesAsync(cancellationToken);
 
-        // Enviar evento para marcar lançamentos como consolidados de forma assíncrona
         var lancamentoIds = lancamentos.Select(l => l.Id).ToList();
         var marcarConsolidadosEvent = new Infrastructure.Messaging.LancamentosConsolidadosEvent
         {
@@ -92,7 +87,6 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
         var key = grupo.Key;
         var lancamentosComerciante = grupo.ToList();
 
-        // Buscar consolidado existente ou criar novo
         var consolidado = await _repository.GetByComercianteAndDataAsync(key.Comerciante, key.Data, cancellationToken);
         if (consolidado == null)
         {
@@ -100,7 +94,6 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
             await _repository.AddAsync(consolidado, cancellationToken);
         }
 
-        // Processar lançamentos
         consolidado.ConsolidarLancamentos(lancamentosComerciante);
         
         LogConsolidationResult(consolidado);

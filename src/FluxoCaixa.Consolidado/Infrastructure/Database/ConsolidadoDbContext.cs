@@ -18,7 +18,6 @@ public class ConsolidadoDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             
-            // Índices otimizados para high-volume processing
             entity.HasIndex(e => new { e.Comerciante, e.Data })
                 .IsUnique()
                 .HasDatabaseName("IX_ConsolidadoDiario_Comerciante_Data");
@@ -32,12 +31,10 @@ public class ConsolidadoDbContext : DbContext
             entity.HasIndex(e => new { e.Data, e.Comerciante })
                 .HasDatabaseName("IX_ConsolidadoDiario_Data_Comerciante");
             
-            // Configurações de precisão decimal
             entity.Property(e => e.TotalCreditos).HasColumnType("decimal(18,2)");
             entity.Property(e => e.TotalDebitos).HasColumnType("decimal(18,2)");
             entity.Property(e => e.SaldoLiquido).HasColumnType("decimal(18,2)");
             
-            // Otimizações de string
             entity.Property(e => e.Comerciante).HasMaxLength(100).IsRequired();
         });
 
@@ -45,11 +42,9 @@ public class ConsolidadoDbContext : DbContext
         {
             entity.HasKey(e => e.LancamentoId);
             
-            // Índice para performance na busca de lançamentos processados
             entity.HasIndex(e => e.DataProcessamento)
                 .HasDatabaseName("IX_LancamentoProcessado_DataProcessamento");
             
-            // Configurações da string
             entity.Property(e => e.LancamentoId).HasMaxLength(50).IsRequired();
         });
 

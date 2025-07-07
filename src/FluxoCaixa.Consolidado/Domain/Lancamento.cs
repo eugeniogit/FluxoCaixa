@@ -4,7 +4,7 @@ public class Lancamento
 {
     private Lancamento()
     {
-        // Required by Entity Framework
+        
     }
 
     public Lancamento(string lancamentoId)

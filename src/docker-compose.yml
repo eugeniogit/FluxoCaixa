@@ -42,10 +42,62 @@ services:
     networks:
       - fluxocaixa-network
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: fluxocaixa-jaeger
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+    networks:
+      - fluxocaixa-network
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: fluxocaixa-otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8889:8889"   # Prometheus metrics
+    depends_on:
+      - jaeger
+    networks:
+      - fluxocaixa-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fluxocaixa-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - fluxocaixa-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fluxocaixa-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - fluxocaixa-network
+
 volumes:
   mongodb_data:
   postgresql_data:
   rabbitmq_data:
+  grafana_data:
 
 networks:
   fluxocaixa-network:

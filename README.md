@@ -20,6 +20,25 @@ Os serviços foram desenvolvidos utilizando **Vertical Slice Architecture** (VSA
 - **Manutenibilidade**: Mudanças em uma funcionalidade ficam isoladas em um slice específico
 - **Sem Over-engineering**: Evita a criação de projetos em camadas desnecessárias ou DDD complexo
 
+### Estrutura de Pastas
+
+Cada projeto segue uma organização clara que combina VSA com separação de responsabilidades. Exemplo:
+
+````
+FluxoCaixa.Lancamento/
+├── Configuration/               # Configurações e constantes
+├── Domain/                      # Entidades de domínio e eventos
+│   ├── Lancamento.cs
+│   └── LancamentoEvent.cs
+├── Features/                    # Vertical Slices (funcionalidades)
+│   ├── CriarLancamento/
+│   ├── ListarLancamentos/
+│   └── ConsolidarLancamentos/
+├── Infrastructure/              # Implementações técnicas
+│   ├── Database/
+│   └── Messaging/
+├── Extensions/                  # Extension methods por tecnologia
+
 ### Aplicações
 
 #### FluxoCaixa.Lancamento
@@ -68,7 +87,7 @@ cd src
 
 # Iniciar MongoDB, PostgreSQL e RabbitMQ
 docker-compose up -d
-```
+````
 
 Serviços disponíveis:
 

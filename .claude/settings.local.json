@@ -4,7 +4,9 @@
       "Bash(dotnet test:*)",
       "Bash(dotnet sln add:*)",
       "Bash(grep:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

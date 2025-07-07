@@ -46,7 +46,6 @@ public class ConsolidarLancamentoHandler : IRequestHandler<ConsolidarLancamentoC
 
         await _repository.SaveChangesAsync(cancellationToken);
 
-        // Enviar evento para marcar lançamento como consolidado de forma assíncrona
         var marcarConsolidadosEvent = new LancamentosConsolidadosEvent
         {
             LancamentoIds = new List<string> { lancamento.Id }
