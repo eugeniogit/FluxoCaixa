@@ -41,7 +41,7 @@ FluxoCaixa.Lancamento/
 
 ### Integração
 
-As aplicações são integradas através de **RabbitMQ**:
+As aplicações são integradas através de **Filas**:
 
 1. **FluxoCaixa.Lancamento** publica eventos na fila `lancamento_events` quando um lançamento é criado
 2. **FluxoCaixa.Consolidado** consome os eventos da fila e atualiza as consolidações
@@ -53,14 +53,12 @@ Para entender as decisões arquiteturais e técnicas tomadas durante o desenvolv
 
 📋 **[Documentos de Decisões Técnicas](docs/adrs/)**
 
-- [ADR-001: Adoção de Arquitetura Serverless](docs/adrs/ADR-001.md) - Decisão sobre arquitetura serverless, banco de dados relacional e estratégias de resiliência
-
 ## 🚀 Como Executar Localmente
 
 ### Pré-requisitos
 
 - **.NET 8 SDK**
-- **Docker Desktop** (para bancos de dados e RabbitMQ)
+- **Docker Desktop** (para bancos de dados, filas, e outros serviços)
 
 ### 1. Iniciar Infraestrutura
 
@@ -117,25 +115,6 @@ O serviço **FluxoCaixa.Lancamento** utiliza autenticação por **API Key**.
 
 A autenticação por API Key foi escolhida considerando que o cenário de integração será **exclusivamente em rede privada** (comunicação entre microsserviços internos).
 
-**Cenário alvo:**
-
-- **Rede privada/interna**: Serviços executando em ambiente controlado (Docker, Kubernetes, VPC)
-- **Comunicação service-to-service**: Integração entre FluxoCaixa.Consolidado e FluxoCaixa.Lancamento
-- **Ambiente confiável**: Sem exposição direta à internet pública
-
-**Benefícios da API Key neste contexto:**
-
-- ✅ **Simplicidade**: Implementação e configuração diretas
-- ✅ **Performance**: Baixo overhead de validação
-- ✅ **Auditoria**: Rastreabilidade de acesso por serviço
-- ✅ **Rotação**: Fácil troca de chaves quando necessário
-
-**Alternativas consideradas (não aplicáveis ao cenário):**
-
-- **OAuth 2.0 / JWT**: Overhead desnecessário para comunicação interna
-- **mTLS**: Complexidade adicional quando API Key é suficiente
-- **Service Mesh Auth**: Não aplicável sem Istio/Linkerd
-
 ### Cabeçalho Obrigatório
 
 ```http
@@ -149,27 +128,13 @@ X-API-Key: sua-api-key-aqui
 | Consolidado Service | `fluxocaixa-consolidado-2024-api-key-secure` | Comunicação entre serviços |
 | Admin Client        | `fluxocaixa-admin-2024-api-key-secure`       | Clientes administrativos   |
 
-### Endpoints Protegidos
-
-- `POST /api/lancamentos` - Criar lançamento
-- `GET /api/lancamentos` - Listar lançamentos
-
-### Endpoints Públicos
-
-- `GET /health` - Health check
-- `GET /health/ready` - Readiness check
-
 ### Processamento Automático
 
-O sistema inclui um **job automático** que executa diariamente às **01:00 AM**:
-
-1. **Deleta** todas as consolidações existentes do dia anterior
-2. **Reconsolida** todos os lançamentos do dia anterior
-3. **Garante** que os dados estão sempre atualizados e corretos
+O sistema inclui um **job automático** que executa diariamente às **01:00 AM** para garantir a consolidação dos lançamentos que não foram consolidados por alguma falha
 
 ## 🧪 Testes
 
-O projeto inclui uma suíte completa de testes unitários e de integração para garantir a qualidade e confiabilidade do código.
+O projeto inclui uma suíte de testes unitários e de integração. Por ser apenas uma demonstração, não têm todos os cenários de testes.
 
 ### Testes Unitários
 
@@ -225,35 +190,6 @@ O projeto possui configuração **inicial** de observabilidade utilizando OpenTe
 - **Prometheus**: Configurado na porta 9090 para coleta de métricas
 - **Grafana**: Interface de visualização na porta 3000 (admin/admin)
 - **OpenTelemetry Collector**: Preparado para receber e processar telemetria
-
-#### ⚠️ **Incompleto/Pendente**
-
-1. **OpenTelemetry Collector**
-
-   - Arquivo `otel-collector-config.yaml` existe mas não está totalmente configurado
-   - Falta integração completa entre collector, Prometheus e outros backends
-
-2. **Dashboards Grafana**
-
-   - Pasta `grafana/provisioning` existe mas dashboards não foram criados
-   - Não há visualizações prontas para métricas de negócio
-
-3. **Métricas Customizadas**
-
-   - Apenas métricas padrão do OpenTelemetry estão sendo coletadas
-   - Faltam métricas de negócio específicas (ex: lançamentos por período, consolidações por comerciante)
-   - Não há instrumentação manual para eventos críticos
-
-4. **Logging Estruturado**
-
-   - Logs não estão integrados com stack de observabilidade
-   - Falta correlação entre logs, traces e métricas
-   - Não há coleta centralizada de logs
-
-5. **Tracing Distribuído Completo**
-   - Propagação de trace context entre serviços via RabbitMQ não configurada
-   - Falta instrumentação manual para operações críticas
-   - Correlation IDs não implementados
 
 ### Como Acessar (Estado Atual)
 
