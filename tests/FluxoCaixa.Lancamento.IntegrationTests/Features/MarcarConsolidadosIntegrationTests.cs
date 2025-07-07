@@ -1,6 +1,5 @@
 using FluentAssertions;
 using FluxoCaixa.Lancamento.Domain;
-using FluxoCaixa.Lancamento.Features.MarcarConsolidados;
 using FluxoCaixa.Lancamento.IntegrationTests.Infrastructure;
 using MongoDB.Driver;
 using Xunit;

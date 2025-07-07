@@ -2,20 +2,20 @@ using FluxoCaixa.Lancamento.Infrastructure.Database;
 using MediatR;
 using MongoDB.Driver;
 
-namespace FluxoCaixa.Lancamento.Features.MarcarConsolidados;
+namespace FluxoCaixa.Lancamento.Features.ConsolidarLancamentos;
 
-public class MarcarConsolidadosHandler : IRequestHandler<MarcarConsolidadosCommand>
+public class ConsolidarLancamentosHandler : IRequestHandler<ConsolidarLancamentosCommand>
 {
     private readonly IMongoDbContext _context;
-    private readonly ILogger<MarcarConsolidadosHandler> _logger;
+    private readonly ILogger<ConsolidarLancamentosHandler> _logger;
 
-    public MarcarConsolidadosHandler(IMongoDbContext context, ILogger<MarcarConsolidadosHandler> logger)
+    public ConsolidarLancamentosHandler(IMongoDbContext context, ILogger<ConsolidarLancamentosHandler> logger)
     {
         _context = context;
         _logger = logger;
     }
 
-    public async Task Handle(MarcarConsolidadosCommand request, CancellationToken cancellationToken)
+    public async Task Handle(ConsolidarLancamentosCommand request, CancellationToken cancellationToken)
     {
         if (!request.LancamentoIds.Any())
         {

@@ -1,5 +1,5 @@
 using FluxoCaixa.Lancamento.Configuration;
-using FluxoCaixa.Lancamento.Features.MarcarConsolidados;
+using FluxoCaixa.Lancamento.Features.ConsolidarLancamentos;
 using MediatR;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -55,7 +55,7 @@ public class MarcarConsolidadosConsumer : IDisposable
                         using var scope = _serviceProvider.CreateScope();
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                         
-                        var command = new MarcarConsolidadosCommand
+                        var command = new ConsolidarLancamentosCommand
                         {
                             LancamentoIds = marcarConsolidadosEvent.LancamentoIds
                         };

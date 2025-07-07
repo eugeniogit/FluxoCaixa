@@ -122,7 +122,7 @@ public static class TestHelpers
         var dbContext = factory.GetDbContext();
         
         dbContext.Consolidados.RemoveRange(dbContext.Consolidados);
-        dbContext.LancamentosConsolidados.RemoveRange(dbContext.LancamentosConsolidados);
+        dbContext.Lancamentos.RemoveRange(dbContext.Lancamentos);
         
         await dbContext.SaveChangesAsync();
     }
@@ -143,7 +143,7 @@ public static class TestHelpers
         string lancamentoId)
     {
         var dbContext = factory.GetDbContext();
-        return await dbContext.LancamentosConsolidados
+        return await dbContext.Lancamentos
             .AnyAsync(lc => lc.LancamentoId == lancamentoId);
     }
 

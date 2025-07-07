@@ -1,13 +1,13 @@
 namespace FluxoCaixa.Consolidado.Domain;
 
-public class LancamentoConsolidado
+public class Lancamento
 {
-    private LancamentoConsolidado()
+    private Lancamento()
     {
         // Required by Entity Framework
     }
 
-    public LancamentoConsolidado(string lancamentoId)
+    public Lancamento(string lancamentoId)
     {
         ValidateInput(lancamentoId);
         

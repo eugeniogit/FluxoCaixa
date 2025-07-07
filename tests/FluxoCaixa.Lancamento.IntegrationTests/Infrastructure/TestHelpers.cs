@@ -1,6 +1,6 @@
 using FluxoCaixa.Lancamento.Domain;
+using FluxoCaixa.Lancamento.Features.ConsolidarLancamentos;
 using FluxoCaixa.Lancamento.Features.CriarLancamento;
-using FluxoCaixa.Lancamento.Features.MarcarConsolidados;
 
 namespace FluxoCaixa.Lancamento.IntegrationTests.Infrastructure;
 
@@ -23,9 +23,9 @@ public static class TestHelpers
         };
     }
 
-    public static MarcarConsolidadosCommand CreateMarcarConsolidadosCommand(params string[] lancamentoIds)
+    public static ConsolidarLancamentosCommand CreateMarcarConsolidadosCommand(params string[] lancamentoIds)
     {
-        return new MarcarConsolidadosCommand
+        return new ConsolidarLancamentosCommand
         {
             LancamentoIds = lancamentoIds.ToList()
         };

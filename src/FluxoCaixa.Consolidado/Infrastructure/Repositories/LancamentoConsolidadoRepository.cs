@@ -15,14 +15,14 @@ public class LancamentoConsolidadoRepository : ILancamentoConsolidadoRepository
 
     public async Task<bool> JaFoiConsolidadoAsync(string lancamentoId, CancellationToken cancellationToken = default)
     {
-        return await _context.LancamentosConsolidados
+        return await _context.Lancamentos
             .AnyAsync(lp => lp.LancamentoId == lancamentoId, cancellationToken);
     }
 
     public async Task ConsolidarAsync(string lancamentoId, CancellationToken cancellationToken = default)
     {
-        var lancamentoProcessado = new LancamentoConsolidado(lancamentoId);
-        await _context.LancamentosConsolidados.AddAsync(lancamentoProcessado, cancellationToken);
+        var lancamentoProcessado = new Lancamento(lancamentoId);
+        await _context.Lancamentos.AddAsync(lancamentoProcessado, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
 }
