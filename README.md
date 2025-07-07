@@ -39,23 +39,6 @@ FluxoCaixa.Lancamento/
 │   └── Messaging/
 ├── Extensions/                  # Extension methods por tecnologia
 
-### Aplicações
-
-#### FluxoCaixa.Lancamento
-
-- **Propósito**: Cadastro e consulta de lançamentos financeiros
-- **Banco de Dados**: MongoDB
-- **Porta**: 60280 (HTTP)
-- **Tecnologias**: ASP.NET Core 8, Minimal API, MongoDB.Driver
-- **Autenticação**: API Key Authentication
-
-#### FluxoCaixa.Consolidado
-
-- **Propósito**: Consolidação diária dos lançamentos por comerciante
-- **Banco de Dados**: PostgreSQL
-- **Tecnologias**: ASP.NET Core 8, Minimal API, Entity Framework Core
-- **Processamento**: Background jobs com Quartz.NET
-
 ### Integração
 
 As aplicações são integradas através de **RabbitMQ**:
@@ -118,17 +101,40 @@ dotnet run
 
 #### FluxoCaixa.Lancamento
 
-- **Swagger UI**: `http://localhost:60280/swagger`
-- **Health Check**: `http://localhost:60280/health`
+- **Swagger UI**: `https://localhost:60277/swagger`
+- **Health Check**: `https://localhost:60277/health`
 
 #### FluxoCaixa.Consolidado
 
-- **Swagger UI**: `http://localhost:60281/swagger`
-- **Health Check**: `http://localhost:60281/health`
+- **Swagger UI**: `https://localhost:60278/swagger`
+- **Health Check**: `https://localhost:60278/health`
 
 ## 🔐 Autenticação
 
-O serviço **FluxoCaixa.Lancamento** utiliza autenticação por API Key.
+O serviço **FluxoCaixa.Lancamento** utiliza autenticação por **API Key**.
+
+### Justificativa da Escolha
+
+A autenticação por API Key foi escolhida considerando que o cenário de integração será **exclusivamente em rede privada** (comunicação entre microsserviços internos).
+
+**Cenário alvo:**
+
+- **Rede privada/interna**: Serviços executando em ambiente controlado (Docker, Kubernetes, VPC)
+- **Comunicação service-to-service**: Integração entre FluxoCaixa.Consolidado e FluxoCaixa.Lancamento
+- **Ambiente confiável**: Sem exposição direta à internet pública
+
+**Benefícios da API Key neste contexto:**
+
+- ✅ **Simplicidade**: Implementação e configuração diretas
+- ✅ **Performance**: Baixo overhead de validação
+- ✅ **Auditoria**: Rastreabilidade de acesso por serviço
+- ✅ **Rotação**: Fácil troca de chaves quando necessário
+
+**Alternativas consideradas (não aplicáveis ao cenário):**
+
+- **OAuth 2.0 / JWT**: Overhead desnecessário para comunicação interna
+- **mTLS**: Complexidade adicional quando API Key é suficiente
+- **Service Mesh Auth**: Não aplicável sem Istio/Linkerd
 
 ### Cabeçalho Obrigatório
 
@@ -196,4 +202,71 @@ dotnet test --verbosity normal
 # Executar apenas testes de integração
 dotnet test tests/FluxoCaixa.Lancamento.IntegrationTests/FluxoCaixa.Lancamento.IntegrationTests.csproj --verbosity normal
 dotnet test tests/FluxoCaixa.Consolidado.IntegrationTests/FluxoCaixa.Consolidado.IntegrationTests.csproj --verbosity normal
+```
+
+## 📊 Observabilidade
+
+O projeto possui configuração **inicial** de observabilidade utilizando OpenTelemetry, Prometheus e Grafana, mas está **incompleta** por questões de tempo e complexidade de configuração.
+
+### Estado Atual
+
+#### ✅ **Implementado**
+
+**OpenTelemetry Configuration:**
+
+- **Tracing**: Instrumentação automática para ASP.NET Core, HttpClient e Entity Framework
+- **Metrics**: Coleta de métricas básicas de performance das aplicações
+- **Resource Builder**: Identificação correta dos serviços ("FluxoCaixa.Lancamento" e "FluxoCaixa.Consolidado")
+- **OTLP Exporter**: Configurado para enviar traces para collector (porta 4318)
+- **Prometheus Exporter**: Métricas expostas no endpoint `/metrics`
+
+**Infraestrutura (Docker Compose):**
+
+- **Prometheus**: Configurado na porta 9090 para coleta de métricas
+- **Grafana**: Interface de visualização na porta 3000 (admin/admin)
+- **OpenTelemetry Collector**: Preparado para receber e processar telemetria
+
+#### ⚠️ **Incompleto/Pendente**
+
+1. **OpenTelemetry Collector**
+
+   - Arquivo `otel-collector-config.yaml` existe mas não está totalmente configurado
+   - Falta integração completa entre collector, Prometheus e outros backends
+
+2. **Dashboards Grafana**
+
+   - Pasta `grafana/provisioning` existe mas dashboards não foram criados
+   - Não há visualizações prontas para métricas de negócio
+
+3. **Métricas Customizadas**
+
+   - Apenas métricas padrão do OpenTelemetry estão sendo coletadas
+   - Faltam métricas de negócio específicas (ex: lançamentos por período, consolidações por comerciante)
+   - Não há instrumentação manual para eventos críticos
+
+4. **Logging Estruturado**
+
+   - Logs não estão integrados com stack de observabilidade
+   - Falta correlação entre logs, traces e métricas
+   - Não há coleta centralizada de logs
+
+5. **Tracing Distribuído Completo**
+   - Propagação de trace context entre serviços via RabbitMQ não configurada
+   - Falta instrumentação manual para operações críticas
+   - Correlation IDs não implementados
+
+### Como Acessar (Estado Atual)
+
+```bash
+# Após iniciar a infraestrutura com docker-compose up -d
+
+# Métricas Prometheus das aplicações
+curl http://localhost:60280/metrics  # FluxoCaixa.Lancamento
+curl http://localhost:60281/metrics  # FluxoCaixa.Consolidado
+
+# Prometheus UI
+http://localhost:9090
+
+# Grafana (admin/admin)
+http://localhost:3000
 ```

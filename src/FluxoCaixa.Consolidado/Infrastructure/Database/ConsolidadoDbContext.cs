@@ -16,8 +16,43 @@ public class ConsolidadoDbContext : DbContext
     {
         modelBuilder.Entity<Domain.Consolidado>(entity =>
         {
+            // Configuração da chave primária
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd();
             
+            // Configuração de propriedades obrigatórias
+            entity.Property(e => e.Comerciante)
+                .IsRequired()
+                .HasMaxLength(100);
+            
+            entity.Property(e => e.Data)
+                .IsRequired();
+            
+            entity.Property(e => e.UltimaAtualizacao)
+                .IsRequired();
+            
+            // Configuração de tipos decimais com precisão
+            entity.Property(e => e.TotalCreditos)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+            
+            entity.Property(e => e.TotalDebitos)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+            
+            entity.Property(e => e.SaldoLiquido)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+            
+            // Configuração de propriedades inteiras
+            entity.Property(e => e.QuantidadeCreditos)
+                .IsRequired();
+            
+            entity.Property(e => e.QuantidadeDebitos)
+                .IsRequired();
+            
+            // Configuração de índices
             entity.HasIndex(e => new { e.Comerciante, e.Data })
                 .IsUnique()
                 .HasDatabaseName("IX_ConsolidadoDiario_Comerciante_Data");
@@ -30,12 +65,6 @@ public class ConsolidadoDbContext : DbContext
             
             entity.HasIndex(e => new { e.Data, e.Comerciante })
                 .HasDatabaseName("IX_ConsolidadoDiario_Data_Comerciante");
-            
-            entity.Property(e => e.TotalCreditos).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.TotalDebitos).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.SaldoLiquido).HasColumnType("decimal(18,2)");
-            
-            entity.Property(e => e.Comerciante).HasMaxLength(100).IsRequired();
         });
 
         modelBuilder.Entity<Lancamento>(entity =>

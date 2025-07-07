@@ -1,17 +1,11 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace FluxoCaixa.Consolidado.Domain;
 
 public class Consolidado
 {
-    [Key]
     public int Id { get; set; }
 
-    [Required]
-    [MaxLength(100)]
     public string Comerciante { get; private set; } = string.Empty;
 
-    [Required]
     public DateTime Data { get; private set; }
 
     public decimal TotalCreditos { get; private set; }

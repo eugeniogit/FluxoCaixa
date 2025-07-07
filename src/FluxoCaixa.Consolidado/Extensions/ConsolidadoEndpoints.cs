@@ -1,4 +1,5 @@
 using FluxoCaixa.Consolidado.Features.ConsolidarPeriodo;
+using FluxoCaixa.Consolidado.Infrastructure.Repositories;
 using MediatR;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,6 +11,46 @@ public static class ConsolidadoEndpoints
     {
         var group = app.MapGroup("/api/consolidado").WithTags("Consolidação");
 
+        // Endpoint para listar todos os consolidados de um comerciante
+        group.MapGet("/comerciante/{comerciante}", async (string comerciante, IConsolidadoDiarioRepository repository) =>
+        {
+            if (string.IsNullOrWhiteSpace(comerciante))
+            {
+                return Results.BadRequest("Nome do comerciante é obrigatório");
+            }
+
+            var consolidados = await repository.GetByComerciante(comerciante);
+            
+            if (!consolidados.Any())
+            {
+                return Results.NotFound($"Nenhum consolidado encontrado para o comerciante: {comerciante}");
+            }
+
+            var response = consolidados.Select(c => new
+            {
+                id = c.Id,
+                comerciante = c.Comerciante,
+                data = c.Data.ToString("yyyy-MM-dd"),
+                totalCreditos = c.TotalCreditos,
+                totalDebitos = c.TotalDebitos,
+                saldoLiquido = c.SaldoLiquido,
+                quantidadeCreditos = c.QuantidadeCreditos,
+                quantidadeDebitos = c.QuantidadeDebitos,
+                ultimaAtualizacao = c.UltimaAtualizacao
+            }).OrderByDescending(c => c.data);
+
+            return Results.Ok(new
+            {
+                comerciante,
+                totalRegistros = consolidados.Count,
+                consolidados = response
+            });
+        })
+        .WithName("ListarConsolidadosPorComerciante")
+        .WithSummary("Listar consolidados por comerciante")
+        .WithDescription("Retorna todos os consolidados de um comerciante específico");
+
+        // Endpoint existente para consolidação geral
         group.MapPost("/consolidar", async (ConsolidarPeriodoRequest request, IMediator mediator) =>
         {
             var validationContext = new ValidationContext(request);
@@ -39,24 +80,14 @@ public static class ConsolidadoEndpoints
         .WithName("ConsolidarPeriodo")
         .WithSummary("Executar consolidação de período")
         .WithDescription("Executa a consolidação manual dos lançamentos para um período específico (data início e fim)");
-
-        group.MapGet("/status/{data}", async (string data) =>
-        {
-            if (!DateTime.TryParse(data, out var parsedDate))
-            {
-                return Results.BadRequest("Data inválida");
-            }
-
-            return Results.Ok(new
-            {
-                message = "status da consolidação",
-                data = parsedDate.ToString("yyyy-MM-dd"),
-                status = "available",
-                timestamp = DateTime.UtcNow
-            });
-        })
-        .WithName("StatusConsolidacao")
-        .WithSummary("Verificar status da consolidação")
-        .WithDescription("Retorna o status da consolidação para uma data específica");
     }
+}
+
+public class ConsolidarComercianteRequest
+{
+    [Required(ErrorMessage = "Data início é obrigatória")]
+    public DateTime DataInicio { get; set; }
+
+    [Required(ErrorMessage = "Data fim é obrigatória")]
+    public DateTime DataFim { get; set; }
 }
