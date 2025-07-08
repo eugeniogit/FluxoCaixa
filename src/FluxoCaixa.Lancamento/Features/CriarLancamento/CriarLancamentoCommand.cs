@@ -1,4 +1,4 @@
-using FluxoCaixa.Lancamento.Domain;
+using FluxoCaixa.Lancamento.Shared.Domain.Entities;
 using MediatR;
 
 namespace FluxoCaixa.Lancamento.Features.CriarLancamento;
@@ -22,7 +22,7 @@ public class CriarLancamentoResponse
     public string Descricao { get; set; } = string.Empty;
     public DateTime DataLancamento { get; set; }
 
-    public static CriarLancamentoResponse FromLancamento(Domain.Lancamento lancamento)
+    public static CriarLancamentoResponse FromLancamento(Shared.Domain.Entities.Lancamento lancamento)
     {
         return new CriarLancamentoResponse
         {

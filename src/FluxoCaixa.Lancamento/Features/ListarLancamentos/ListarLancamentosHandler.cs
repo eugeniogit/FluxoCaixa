@@ -1,4 +1,4 @@
-using FluxoCaixa.Lancamento.Infrastructure.Database;
+using FluxoCaixa.Lancamento.Shared.Contracts.Database;
 using MediatR;
 using MongoDB.Driver;
 
@@ -21,9 +21,9 @@ public class ListarLancamentosHandler : IRequestHandler<ListarLancamentosQuery, 
         return CreateResponse(lancamentos);
     }
 
-    private FilterDefinition<Domain.Lancamento> BuildFilter(ListarLancamentosQuery request)
+    private FilterDefinition<Shared.Domain.Entities.Lancamento> BuildFilter(ListarLancamentosQuery request)
     {
-        var filterBuilder = Builders<Domain.Lancamento>.Filter;
+        var filterBuilder = Builders<Shared.Domain.Entities.Lancamento>.Filter;
         var filter = filterBuilder.Empty;
 
         if (!string.IsNullOrEmpty(request.Comerciante))
@@ -36,7 +36,7 @@ public class ListarLancamentosHandler : IRequestHandler<ListarLancamentosQuery, 
         return filter;
     }
 
-    private async Task<List<Domain.Lancamento>> GetLancamentos(FilterDefinition<Domain.Lancamento> filter, CancellationToken cancellationToken)
+    private async Task<List<Shared.Domain.Entities.Lancamento>> GetLancamentos(FilterDefinition<Shared.Domain.Entities.Lancamento> filter, CancellationToken cancellationToken)
     {
         return await _context.Lancamentos
             .Find(filter)
@@ -44,7 +44,7 @@ public class ListarLancamentosHandler : IRequestHandler<ListarLancamentosQuery, 
             .ToListAsync(cancellationToken);
     }
 
-    private static ListarLancamentosResponse CreateResponse(List<Domain.Lancamento> lancamentos)
+    private static ListarLancamentosResponse CreateResponse(List<Shared.Domain.Entities.Lancamento> lancamentos)
     {
         return new ListarLancamentosResponse
         {

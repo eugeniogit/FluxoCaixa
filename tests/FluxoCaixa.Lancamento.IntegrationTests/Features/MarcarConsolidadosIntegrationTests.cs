@@ -1,6 +1,6 @@
 using FluentAssertions;
-using FluxoCaixa.Lancamento.Domain;
 using FluxoCaixa.Lancamento.IntegrationTests.Infrastructure;
+using FluxoCaixa.Lancamento.Shared.Domain.Entities;
 using MongoDB.Driver;
 using Xunit;
 
@@ -124,7 +124,7 @@ public class MarcarConsolidadosIntegrationTests : IClassFixture<LancamentoTestFa
         // Mark the first one as consolidated manually
         await dbContext.Lancamentos.UpdateOneAsync(
             l => l.Id == lancamentos[0].Id,
-            Builders<Domain.Lancamento>.Update.Set(l => l.Consolidado, true));
+            Builders<Shared.Domain.Entities.Lancamento>.Update.Set(l => l.Consolidado, true));
 
         var command = TestHelpers.CreateMarcarConsolidadosCommand(lancamentos.Select(l => l.Id).ToArray());
         var mediator = _factory.GetMediator();

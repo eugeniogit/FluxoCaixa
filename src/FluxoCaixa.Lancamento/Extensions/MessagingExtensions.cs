@@ -1,5 +1,6 @@
-using FluxoCaixa.Lancamento.Infrastructure.Messaging;
-using FluxoCaixa.Lancamento.Infrastructure.Messaging.Abstractions;
+using FluxoCaixa.Lancamento.Shared.Configurations;
+using FluxoCaixa.Lancamento.Shared.Contracts.Messaging;
+using FluxoCaixa.Lancamento.Shared.Infrastructure.Messaging;
 
 namespace FluxoCaixa.Lancamento.Extensions;
 
@@ -7,7 +8,7 @@ public static class MessagingExtensions
 {
     public static IServiceCollection AddRabbitMqMessaging(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<MessageBrokerSettings>(
+        services.Configure<RabbitMqSettings>(
             configuration.GetSection("RabbitMqSettings"));
         
         services.AddSingleton<IMessageBrokerFactory, MessageBrokerFactory>();

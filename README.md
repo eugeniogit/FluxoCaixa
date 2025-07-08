@@ -22,22 +22,27 @@ Os serviços foram desenvolvidos utilizando **Vertical Slice Architecture** (VSA
 
 ### Estrutura de Pastas
 
-Cada projeto segue uma organização clara que combina VSA com separação de responsabilidades. Exemplo:
+Cada projeto segue uma organização clara que combina VSA com separação de responsabilidades utilizando **Shared Kernel** para elementos comuns:
 
 ````
-FluxoCaixa.Lancamento/
-├── Configuration/               # Configurações e constantes
-├── Domain/                      # Entidades de domínio e eventos
-│   ├── Lancamento.cs
-│   └── LancamentoEvent.cs
+├── Endpoints/                   # Minimal APIs endpoints
+├── Extensions/                  # Extension methods por tecnologia
 ├── Features/                    # Vertical Slices (funcionalidades)
 │   ├── CriarLancamento/
 │   ├── ListarLancamentos/
 │   └── ConsolidarLancamentos/
-├── Infrastructure/              # Implementações técnicas
-│   ├── Database/
-│   └── Messaging/
-├── Extensions/                  # Extension methods por tecnologia
+└── Shared/                      # Shared Kernel
+    ├── Configurations/          # Configurações e settings
+    ├── Contracts/               # Interfaces e contratos
+    │   ├── Database/
+    │   └── Messaging/
+    ├── Domain/                  # Entidades de domínio e eventos
+    │   ├── Entities/
+    │   └── Events/
+    └── Infrastructure/          # Implementações técnicas
+        ├── Authentication/
+        ├── Database/
+        └── Messaging/
 
 ### Integração
 

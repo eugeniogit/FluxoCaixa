@@ -1,5 +1,6 @@
-using FluxoCaixa.Lancamento.Configuration;
-using FluxoCaixa.Lancamento.Infrastructure.Database;
+using FluxoCaixa.Lancamento.Shared.Configurations;
+using FluxoCaixa.Lancamento.Shared.Contracts.Database;
+using FluxoCaixa.Lancamento.Shared.Infrastructure.Database;
 
 namespace FluxoCaixa.Lancamento.Extensions;
 

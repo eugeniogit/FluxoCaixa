@@ -1,10 +1,10 @@
-using FluxoCaixa.Consolidado.Configuration;
 using FluxoCaixa.Consolidado.Features.ConsolidarLancamento;
-using FluxoCaixa.Consolidado.Infrastructure.Database;
-using FluxoCaixa.Consolidado.Infrastructure.ExternalServices;
-using FluxoCaixa.Consolidado.Infrastructure.Messaging;
-using FluxoCaixa.Consolidado.Infrastructure.Messaging.Abstractions;
-using FluxoCaixa.Consolidado.Infrastructure.Repositories;
+using FluxoCaixa.Consolidado.Shared.Contracts.ExternalServices;
+using FluxoCaixa.Consolidado.Shared.Contracts.Messaging;
+using FluxoCaixa.Consolidado.Shared.Contracts.Repositories;
+using FluxoCaixa.Consolidado.Shared.Infrastructure.Database;
+using FluxoCaixa.Consolidado.Shared.Infrastructure.Messaging;
+using FluxoCaixa.Consolidado.Shared.Infrastructure.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using FluxoCaixa.Lancamento.Domain;
+using FluxoCaixa.Lancamento.Shared.Domain.Entities;
 using MongoDB.Bson;
 using Xunit;
 
@@ -18,7 +18,7 @@ public class LancamentoTests
         var descricao = "Descrição teste";
 
         // Act
-        var lancamento = new Lancamento.Domain.Lancamento(comerciante, valor, tipo, data, descricao);
+        var lancamento = new Shared.Domain.Entities.Lancamento(comerciante, valor, tipo, data, descricao);
 
         // Assert
         lancamento.Should().NotBeNull();
@@ -43,8 +43,8 @@ public class LancamentoTests
         var descricao = "Descrição teste";
 
         // Act
-        var lancamento1 = new Lancamento.Domain.Lancamento(comerciante, valor, tipo, data, descricao);
-        var lancamento2 = new Lancamento.Domain.Lancamento(comerciante, valor, tipo, data, descricao);
+        var lancamento1 = new Shared.Domain.Entities.Lancamento(comerciante, valor, tipo, data, descricao);
+        var lancamento2 = new Shared.Domain.Entities.Lancamento(comerciante, valor, tipo, data, descricao);
 
         // Assert
         lancamento1.Id.Should().NotBe(lancamento2.Id);
@@ -65,7 +65,7 @@ public class LancamentoTests
         var descricao = "Descrição teste";
 
         // Act & Assert
-        var act = () => new Lancamento.Domain.Lancamento(comerciante, valor, tipo, data, descricao);
+        var act = () => new Shared.Domain.Entities.Lancamento(comerciante, valor, tipo, data, descricao);
         act.Should().Throw<ArgumentException>()
             .WithMessage("Comerciante é obrigatório*")
             .And.ParamName.Should().Be("comerciante");
@@ -84,7 +84,7 @@ public class LancamentoTests
         var descricao = "Descrição teste";
 
         // Act & Assert
-        var act = () => new Lancamento.Domain.Lancamento(comerciante, valor, tipo, data, descricao);
+        var act = () => new Shared.Domain.Entities.Lancamento(comerciante, valor, tipo, data, descricao);
         act.Should().Throw<ArgumentException>()
             .WithMessage("Valor deve ser maior que zero*")
             .And.ParamName.Should().Be("valor");
@@ -101,7 +101,7 @@ public class LancamentoTests
         var descricao = "Descrição teste";
 
         // Act & Assert
-        var act = () => new Lancamento.Domain.Lancamento(comerciante, valor, tipo, data, descricao);
+        var act = () => new Shared.Domain.Entities.Lancamento(comerciante, valor, tipo, data, descricao);
         act.Should().Throw<ArgumentException>()
             .WithMessage("Data é obrigatória*")
             .And.ParamName.Should().Be("data");
@@ -111,7 +111,7 @@ public class LancamentoTests
     public void IsCredito_DeveRetornarTrue_QuandoTipoCredito()
     {
         // Arrange
-        var lancamento = new Lancamento.Domain.Lancamento("Comerciante", 100m, TipoLancamento.Credito, DateTime.Now, "Descrição");
+        var lancamento = new Shared.Domain.Entities.Lancamento("Comerciante", 100m, TipoLancamento.Credito, DateTime.Now, "Descrição");
 
         // Act
         var isCredito = lancamento.IsCredito();
@@ -124,7 +124,7 @@ public class LancamentoTests
     public void IsCredito_DeveRetornarFalse_QuandoTipoDebito()
     {
         // Arrange
-        var lancamento = new Lancamento.Domain.Lancamento("Comerciante", 100m, TipoLancamento.Debito, DateTime.Now, "Descrição");
+        var lancamento = new Shared.Domain.Entities.Lancamento("Comerciante", 100m, TipoLancamento.Debito, DateTime.Now, "Descrição");
 
         // Act
         var isCredito = lancamento.IsCredito();
@@ -137,7 +137,7 @@ public class LancamentoTests
     public void IsDebito_DeveRetornarTrue_QuandoTipoDebito()
     {
         // Arrange
-        var lancamento = new Lancamento.Domain.Lancamento("Comerciante", 100m, TipoLancamento.Debito, DateTime.Now, "Descrição");
+        var lancamento = new Shared.Domain.Entities.Lancamento("Comerciante", 100m, TipoLancamento.Debito, DateTime.Now, "Descrição");
 
         // Act
         var isDebito = lancamento.IsDebito();
@@ -150,7 +150,7 @@ public class LancamentoTests
     public void IsDebito_DeveRetornarFalse_QuandoTipoCredito()
     {
         // Arrange
-        var lancamento = new Lancamento.Domain.Lancamento("Comerciante", 100m, TipoLancamento.Credito, DateTime.Now, "Descrição");
+        var lancamento = new Shared.Domain.Entities.Lancamento("Comerciante", 100m, TipoLancamento.Credito, DateTime.Now, "Descrição");
 
         // Act
         var isDebito = lancamento.IsDebito();
@@ -163,7 +163,7 @@ public class LancamentoTests
     public void MarcarComoConsolidado_DeveAlterarConsolidadoParaTrue()
     {
         // Arrange
-        var lancamento = new Lancamento.Domain.Lancamento("Comerciante", 100m, TipoLancamento.Credito, DateTime.Now, "Descrição");
+        var lancamento = new Shared.Domain.Entities.Lancamento("Comerciante", 100m, TipoLancamento.Credito, DateTime.Now, "Descrição");
         lancamento.Consolidado.Should().BeFalse();
 
         // Act
@@ -185,7 +185,7 @@ public class LancamentoTests
         var descricao = "Descrição teste";
 
         // Act
-        var lancamento = new Lancamento.Domain.Lancamento(comerciante, valor, tipo, data, descricao);
+        var lancamento = new Shared.Domain.Entities.Lancamento(comerciante, valor, tipo, data, descricao);
 
         // Assert
         lancamento.Tipo.Should().Be(tipo);
@@ -202,7 +202,7 @@ public class LancamentoTests
         var descricao = "";
 
         // Act
-        var lancamento = new Lancamento.Domain.Lancamento(comerciante, valor, tipo, data, descricao);
+        var lancamento = new Shared.Domain.Entities.Lancamento(comerciante, valor, tipo, data, descricao);
 
         // Assert
         lancamento.Descricao.Should().BeEmpty();
@@ -220,7 +220,7 @@ public class LancamentoTests
         var antes = DateTime.UtcNow;
 
         // Act
-        var lancamento = new Lancamento.Domain.Lancamento(comerciante, valor, tipo, data, descricao);
+        var lancamento = new Shared.Domain.Entities.Lancamento(comerciante, valor, tipo, data, descricao);
         var depois = DateTime.UtcNow;
 
         // Assert

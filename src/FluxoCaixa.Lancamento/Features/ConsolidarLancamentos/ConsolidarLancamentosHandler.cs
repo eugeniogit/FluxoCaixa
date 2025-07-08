@@ -1,4 +1,4 @@
-using FluxoCaixa.Lancamento.Infrastructure.Database;
+using FluxoCaixa.Lancamento.Shared.Contracts.Database;
 using MediatR;
 using MongoDB.Driver;
 
@@ -23,8 +23,8 @@ public class ConsolidarLancamentosHandler : IRequestHandler<ConsolidarLancamento
             return;
         }
 
-        var filter = Builders<Domain.Lancamento>.Filter.In(l => l.Id, request.LancamentoIds);
-        var update = Builders<Domain.Lancamento>.Update.Set(l => l.Consolidado, true);
+        var filter = Builders<Shared.Domain.Entities.Lancamento>.Filter.In(l => l.Id, request.LancamentoIds);
+        var update = Builders<Shared.Domain.Entities.Lancamento>.Update.Set(l => l.Consolidado, true);
 
         var result = await _context.Lancamentos.UpdateManyAsync(filter, update, cancellationToken: cancellationToken);
 

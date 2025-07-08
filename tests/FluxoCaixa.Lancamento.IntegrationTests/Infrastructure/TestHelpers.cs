@@ -1,6 +1,6 @@
-using FluxoCaixa.Lancamento.Domain;
 using FluxoCaixa.Lancamento.Features.ConsolidarLancamentos;
 using FluxoCaixa.Lancamento.Features.CriarLancamento;
+using FluxoCaixa.Lancamento.Shared.Domain.Entities;
 
 namespace FluxoCaixa.Lancamento.IntegrationTests.Infrastructure;
 
@@ -31,7 +31,7 @@ public static class TestHelpers
         };
     }
 
-    public static async Task<Domain.Lancamento> CreateLancamentoInDatabase(
+    public static async Task<Shared.Domain.Entities.Lancamento> CreateLancamentoInDatabase(
         LancamentoTestFactory factory,
         string? comerciante = null,
         decimal? valor = null,
@@ -40,7 +40,7 @@ public static class TestHelpers
         string? descricao = null)
     {
         var dbContext = factory.GetDbContext();
-        var lancamento = new Domain.Lancamento(
+        var lancamento = new Shared.Domain.Entities.Lancamento(
             comerciante ?? "Comerciante Teste",
             valor ?? 100.50m,
             tipo ?? TipoLancamento.Credito,
@@ -52,18 +52,18 @@ public static class TestHelpers
         return lancamento;
     }
 
-    public static async Task<List<Domain.Lancamento>> CreateMultipleLancamentosInDatabase(
+    public static async Task<List<Shared.Domain.Entities.Lancamento>> CreateMultipleLancamentosInDatabase(
         LancamentoTestFactory factory,
         int count,
         string? comerciante = null,
         TipoLancamento? tipo = null)
     {
-        var lancamentos = new List<Domain.Lancamento>();
+        var lancamentos = new List<Shared.Domain.Entities.Lancamento>();
         var dbContext = factory.GetDbContext();
 
         for (int i = 0; i < count; i++)
         {
-            var lancamento = new Domain.Lancamento(
+            var lancamento = new Shared.Domain.Entities.Lancamento(
                 comerciante ?? $"Comerciante {i + 1}",
                 (i + 1) * 10.5m,
                 tipo ?? (i % 2 == 0 ? TipoLancamento.Credito : TipoLancamento.Debito),

@@ -1,6 +1,6 @@
-using FluxoCaixa.Consolidado.Domain;
 using FluxoCaixa.Consolidado.Features.ConsolidarLancamento;
 using FluxoCaixa.Consolidado.Features.ConsolidarPeriodo;
+using FluxoCaixa.Consolidado.Shared.Domain.Events;
 using Microsoft.EntityFrameworkCore;
 
 namespace FluxoCaixa.Consolidado.IntegrationTests.Infrastructure;
@@ -63,7 +63,7 @@ public static class TestHelpers
         };
     }
 
-    public static async Task<Domain.Consolidado> CreateConsolidadoInDatabase(
+    public static async Task<Shared.Domain.Entities.Consolidado> CreateConsolidadoInDatabase(
         ConsolidadoTestFactory factory,
         string? comerciante = null,
         DateTime? data = null,
@@ -73,7 +73,7 @@ public static class TestHelpers
         int quantidadeDebitos = 0)
     {
         var dbContext = factory.GetDbContext();
-        var consolidado = new Domain.Consolidado(
+        var consolidado = new Shared.Domain.Entities.Consolidado(
             comerciante ?? "Comerciante Teste",
             data ?? DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc)
         );
@@ -127,7 +127,7 @@ public static class TestHelpers
         await dbContext.SaveChangesAsync();
     }
 
-    public static async Task<Domain.Consolidado?> GetConsolidadoFromDatabase(
+    public static async Task<Shared.Domain.Entities.Consolidado?> GetConsolidadoFromDatabase(
         ConsolidadoTestFactory factory,
         string comerciante,
         DateTime data)
@@ -147,7 +147,7 @@ public static class TestHelpers
             .AnyAsync(lc => lc.LancamentoId == lancamentoId);
     }
 
-    public static async Task<List<Domain.Consolidado>> GetAllConsolidados(ConsolidadoTestFactory factory)
+    public static async Task<List<Shared.Domain.Entities.Consolidado>> GetAllConsolidados(ConsolidadoTestFactory factory)
     {
         var dbContext = factory.GetDbContext();
         return await dbContext.Consolidados.ToListAsync();

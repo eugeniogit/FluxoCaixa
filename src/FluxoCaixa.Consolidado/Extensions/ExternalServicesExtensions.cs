@@ -1,5 +1,6 @@
-using FluxoCaixa.Consolidado.Configuration;
-using FluxoCaixa.Consolidado.Infrastructure.ExternalServices;
+using FluxoCaixa.Consolidado.Shared.Configurations;
+using FluxoCaixa.Consolidado.Shared.Contracts.ExternalServices;
+using FluxoCaixa.Consolidado.Shared.Infrastructure.ExternalServices;
 
 namespace FluxoCaixa.Consolidado.Extensions;
 

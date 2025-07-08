@@ -1,5 +1,5 @@
-using FluxoCaixa.Consolidado.Configuration;
-using FluxoCaixa.Consolidado.Infrastructure.Jobs;
+using FluxoCaixa.Consolidado.Shared.Configurations;
+using FluxoCaixa.Consolidado.Shared.Infrastructure.Jobs;
 using Quartz;
 
 namespace FluxoCaixa.Consolidado.Extensions;

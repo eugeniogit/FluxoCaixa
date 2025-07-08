@@ -1,5 +1,5 @@
-using FluxoCaixa.Consolidado.Infrastructure.Messaging;
-using FluxoCaixa.Consolidado.Infrastructure.Messaging.Abstractions;
+using FluxoCaixa.Consolidado.Shared.Contracts.Messaging;
+using FluxoCaixa.Consolidado.Shared.Infrastructure.Messaging;
 
 namespace FluxoCaixa.Consolidado.Extensions;
 

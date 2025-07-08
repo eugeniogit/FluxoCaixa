@@ -1,5 +1,6 @@
-using FluxoCaixa.Consolidado.Infrastructure.Database;
-using FluxoCaixa.Consolidado.Infrastructure.Repositories;
+using FluxoCaixa.Consolidado.Shared.Contracts.Repositories;
+using FluxoCaixa.Consolidado.Shared.Infrastructure.Database;
+using FluxoCaixa.Consolidado.Shared.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace FluxoCaixa.Consolidado.Extensions;

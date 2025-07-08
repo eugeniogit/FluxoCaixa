@@ -1,7 +1,7 @@
-using FluxoCaixa.Consolidado.Domain;
-using FluxoCaixa.Consolidado.Infrastructure.ExternalServices;
-using FluxoCaixa.Consolidado.Infrastructure.Messaging.Abstractions;
-using FluxoCaixa.Consolidado.Infrastructure.Repositories;
+using FluxoCaixa.Consolidado.Shared.Contracts.ExternalServices;
+using FluxoCaixa.Consolidado.Shared.Contracts.Messaging;
+using FluxoCaixa.Consolidado.Shared.Contracts.Repositories;
+using FluxoCaixa.Consolidado.Shared.Domain.Events;
 using MediatR;
 
 namespace FluxoCaixa.Consolidado.Features.ConsolidarPeriodo;
@@ -90,7 +90,7 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
         var consolidado = await _repository.GetByComercianteAndDataAsync(key.Comerciante, key.Data, cancellationToken);
         if (consolidado == null)
         {
-            consolidado = new Domain.Consolidado(key.Comerciante, key.Data);
+            consolidado = new Shared.Domain.Entities.Consolidado(key.Comerciante, key.Data);
             await _repository.AddAsync(consolidado, cancellationToken);
         }
 
@@ -107,7 +107,7 @@ public class ConsolidarPeriodoHandler : IRequestHandler<ConsolidarPeriodoCommand
     }
 
 
-    private void LogConsolidationResult(Domain.Consolidado consolidado)
+    private void LogConsolidationResult(Shared.Domain.Entities.Consolidado consolidado)
     {
         _logger.LogInformation("Consolidado atualizado para {Comerciante} em {Data}. " +
             "Créditos: {Creditos}, Débitos: {Debitos}, Saldo: {Saldo}", 

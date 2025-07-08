@@ -1,3 +1,4 @@
+using FluxoCaixa.Consolidado.Entdpoints;
 using FluxoCaixa.Consolidado.Extensions;
 using MediatR;
 using System.Reflection;

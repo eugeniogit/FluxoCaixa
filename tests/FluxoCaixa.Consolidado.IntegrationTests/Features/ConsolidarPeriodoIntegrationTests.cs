@@ -1,8 +1,6 @@
 using FluentAssertions;
-using FluxoCaixa.Consolidado.Domain;
-using FluxoCaixa.Consolidado.Features.ConsolidarPeriodo;
-using FluxoCaixa.Consolidado.Infrastructure.ExternalServices;
 using FluxoCaixa.Consolidado.IntegrationTests.Infrastructure;
+using FluxoCaixa.Consolidado.Shared.Domain.Events;
 using Moq;
 using Xunit;
 

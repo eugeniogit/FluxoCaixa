@@ -1,5 +1,5 @@
 using FluentAssertions;
-using FluxoCaixa.Consolidado.Domain;
+using FluxoCaixa.Consolidado.Shared.Domain.Events;
 using Xunit;
 
 namespace FluxoCaixa.Consolidado.UnitTests.Domain;
@@ -14,7 +14,7 @@ public class ConsolidadoTests
         var data = new DateTime(2023, 12, 25);
 
         // Act
-        var consolidado = new Consolidado.Domain.Consolidado(comerciante, data);
+        var consolidado = new Shared.Domain.Entities.Consolidado(comerciante, data);
 
         // Assert
         consolidado.Should().NotBeNull();
@@ -38,7 +38,7 @@ public class ConsolidadoTests
         var data = new DateTime(2023, 12, 25);
 
         // Act & Assert
-        var act = () => new Consolidado.Domain.Consolidado(comerciante, data);
+        var act = () => new Shared.Domain.Entities.Consolidado(comerciante, data);
         act.Should().Throw<ArgumentException>()
             .WithMessage("Comerciante é obrigatório*")
             .And.ParamName.Should().Be("comerciante");
@@ -52,7 +52,7 @@ public class ConsolidadoTests
         var data = default(DateTime);
 
         // Act & Assert
-        var act = () => new Consolidado.Domain.Consolidado(comerciante, data);
+        var act = () => new Shared.Domain.Entities.Consolidado(comerciante, data);
         act.Should().Throw<ArgumentException>()
             .WithMessage("Data é obrigatória*")
             .And.ParamName.Should().Be("data");
@@ -66,7 +66,7 @@ public class ConsolidadoTests
         var data = new DateTime(2023, 12, 25, 14, 30, 45);
 
         // Act
-        var consolidado = new Consolidado.Domain.Consolidado(comerciante, data);
+        var consolidado = new Shared.Domain.Entities.Consolidado(comerciante, data);
 
         // Assert
         consolidado.Data.Should().Be(data.Date);
@@ -79,7 +79,7 @@ public class ConsolidadoTests
     public void AdicionarCredito_DeveIncrementarTotalCreditos_QuandoValorPositivo()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
         var valor = 100.50m;
 
         // Act
@@ -99,7 +99,7 @@ public class ConsolidadoTests
     public void AdicionarCredito_DeveLancarExcecao_QuandoValorInvalido(decimal valor)
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
 
         // Act & Assert
         var act = () => consolidado.AdicionarCredito(valor);
@@ -112,7 +112,7 @@ public class ConsolidadoTests
     public void AdicionarDebito_DeveIncrementarTotalDebitos_QuandoValorPositivo()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
         var valor = 50.25m;
 
         // Act
@@ -132,7 +132,7 @@ public class ConsolidadoTests
     public void AdicionarDebito_DeveLancarExcecao_QuandoValorInvalido(decimal valor)
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
 
         // Act & Assert
         var act = () => consolidado.AdicionarDebito(valor);
@@ -145,7 +145,7 @@ public class ConsolidadoTests
     public void SaldoLiquido_DeveSerCalculadoCorretamente_QuandoCreditsEDebitos()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
 
         // Act
         consolidado.AdicionarCredito(200m);
@@ -165,7 +165,7 @@ public class ConsolidadoTests
     public void Consolidar_DeveAdicionarCredito_QuandoLancamentoCredito()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
         var lancamento = new LancamentoEvent
         {
             Id = "1",
@@ -191,7 +191,7 @@ public class ConsolidadoTests
     public void Consolidar_DeveAdicionarDebito_QuandoLancamentoDebito()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
         var lancamento = new LancamentoEvent
         {
             Id = "1",
@@ -217,7 +217,7 @@ public class ConsolidadoTests
     public void ConsolidarLancamentos_DeveProcessarTodosLancamentos()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
         var lancamentos = new List<LancamentoEvent>
         {
             new LancamentoEvent
@@ -264,7 +264,7 @@ public class ConsolidadoTests
     public void ConsolidarLancamentos_DeveProcessarListaVazia()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
         var lancamentos = new List<LancamentoEvent>();
 
         // Act
@@ -282,7 +282,7 @@ public class ConsolidadoTests
     public void UltimaAtualizacao_DeveSerAtualizadaQuandoAdicionarCredito()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
         var dataInicial = consolidado.UltimaAtualizacao;
         Thread.Sleep(10);
 
@@ -297,7 +297,7 @@ public class ConsolidadoTests
     public void UltimaAtualizacao_DeveSerAtualizadaQuandoAdicionarDebito()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
         var dataInicial = consolidado.UltimaAtualizacao;
         Thread.Sleep(10);
 
@@ -312,7 +312,7 @@ public class ConsolidadoTests
     public void SaldoLiquido_DeveSerNegativo_QuandoDebitosSuperioresCreditos()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
 
         // Act
         consolidado.AdicionarCredito(100m);
@@ -326,7 +326,7 @@ public class ConsolidadoTests
     public void SaldoLiquido_DeveSerPositivo_QuandoCreditosSuperioresDebitos()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
 
         // Act
         consolidado.AdicionarCredito(300m);
@@ -340,7 +340,7 @@ public class ConsolidadoTests
     public void SaldoLiquido_DeveSerZero_QuandoCreditosIguaisDebitos()
     {
         // Arrange
-        var consolidado = new Consolidado.Domain.Consolidado("Comerciante", DateTime.Now);
+        var consolidado = new Shared.Domain.Entities.Consolidado("Comerciante", DateTime.Now);
 
         // Act
         consolidado.AdicionarCredito(100m);

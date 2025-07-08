@@ -1,6 +1,6 @@
-using FluxoCaixa.Lancamento.Domain;
-using FluxoCaixa.Lancamento.Infrastructure.Database;
-using FluxoCaixa.Lancamento.Infrastructure.Messaging.Abstractions;
+using FluxoCaixa.Lancamento.Shared.Contracts.Database;
+using FluxoCaixa.Lancamento.Shared.Contracts.Messaging;
+using FluxoCaixa.Lancamento.Shared.Domain.Events;
 using MediatR;
 
 namespace FluxoCaixa.Lancamento.Features.CriarLancamento;
@@ -23,7 +23,7 @@ public class CriarLancamentoHandler : IRequestHandler<CriarLancamentoCommand, Cr
 
     public async Task<CriarLancamentoResponse> Handle(CriarLancamentoCommand request, CancellationToken cancellationToken)
     {
-        var lancamento = new Domain.Lancamento(
+        var lancamento = new Shared.Domain.Entities.Lancamento(
             request.Comerciante,
             request.Valor,
             request.Tipo,
@@ -38,7 +38,7 @@ public class CriarLancamentoHandler : IRequestHandler<CriarLancamentoCommand, Cr
         return CriarLancamentoResponse.FromLancamento(lancamento);
     }
 
-    private async Task PublishEventAsync(Domain.Lancamento lancamento)
+    private async Task PublishEventAsync(Shared.Domain.Entities.Lancamento lancamento)
     {
         try
         {

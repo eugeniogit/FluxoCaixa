@@ -1,7 +1,7 @@
-using FluxoCaixa.Consolidado.Domain;
 using MediatR;
-using FluxoCaixa.Consolidado.Infrastructure.Repositories;
-using FluxoCaixa.Consolidado.Infrastructure.Messaging.Abstractions;
+using FluxoCaixa.Consolidado.Shared.Contracts.Repositories;
+using FluxoCaixa.Consolidado.Shared.Contracts.Messaging;
+using FluxoCaixa.Consolidado.Shared.Domain.Events;
 
 namespace FluxoCaixa.Consolidado.Features.ConsolidarLancamento;
 
@@ -57,13 +57,13 @@ public class ConsolidarLancamentoHandler : IRequestHandler<ConsolidarLancamentoC
             consolidado.Comerciante, consolidado.Data, consolidado.SaldoLiquido);
     }
 
-    private async Task<Domain.Consolidado> GetOrCreateConsolidado(string comerciante, DateTime data, CancellationToken cancellationToken)
+    private async Task<Shared.Domain.Entities.Consolidado> GetOrCreateConsolidado(string comerciante, DateTime data, CancellationToken cancellationToken)
     {
         var consolidado = await _repository.GetByComercianteAndDataAsync(comerciante, data, cancellationToken);
 
         if (consolidado == null)
         {
-            consolidado = new Domain.Consolidado(comerciante, data);
+            consolidado = new Shared.Domain.Entities.Consolidado(comerciante, data);
             await _repository.AddAsync(consolidado, cancellationToken);
         }
 

@@ -1,4 +1,4 @@
-using FluxoCaixa.Lancamento.Domain;
+using FluxoCaixa.Lancamento.Shared.Domain.Entities;
 using MediatR;
 
 namespace FluxoCaixa.Lancamento.Features.ListarLancamentos;
@@ -27,7 +27,7 @@ public class LancamentoDto
     public DateTime DataLancamento { get; set; }
     public bool Consolidado { get; set; }
 
-    public static LancamentoDto FromLancamento(Domain.Lancamento lancamento)
+    public static LancamentoDto FromLancamento(Shared.Domain.Entities.Lancamento lancamento)
     {
         return new LancamentoDto
         {

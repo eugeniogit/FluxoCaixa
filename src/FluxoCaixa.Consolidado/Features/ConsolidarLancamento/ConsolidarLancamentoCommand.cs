@@ -1,4 +1,4 @@
-using FluxoCaixa.Consolidado.Domain;
+using FluxoCaixa.Consolidado.Shared.Domain.Events;
 using MediatR;
 
 namespace FluxoCaixa.Consolidado.Features.ConsolidarLancamento;

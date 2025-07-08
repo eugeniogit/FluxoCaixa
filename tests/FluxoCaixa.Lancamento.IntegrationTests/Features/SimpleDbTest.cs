@@ -1,5 +1,6 @@
 using FluentAssertions;
 using FluxoCaixa.Lancamento.IntegrationTests.Infrastructure;
+using FluxoCaixa.Lancamento.Shared.Domain.Entities;
 using MongoDB.Driver;
 using Xunit;
 
@@ -22,10 +23,10 @@ public class SimpleDbTest : IClassFixture<LancamentoTestFactory>
         await _factory.ClearDatabaseAsync();
         var dbContext = _factory.GetDbContext();
         
-        var lancamento = new Domain.Lancamento(
+        var lancamento = new Shared.Domain.Entities.Lancamento(
             "Test Comerciante",
             100m,
-            Domain.TipoLancamento.Credito,
+            TipoLancamento.Credito,
             DateTime.UtcNow,
             "Test Description"
         );

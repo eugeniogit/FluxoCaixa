@@ -1,12 +1,12 @@
-using FluxoCaixa.Lancamento.Configuration;
 using FluxoCaixa.Lancamento.Features.CriarLancamento;
-using FluxoCaixa.Lancamento.Infrastructure.Database;
-using FluxoCaixa.Lancamento.Infrastructure.Messaging;
-using FluxoCaixa.Lancamento.Infrastructure.Messaging.Abstractions;
+using FluxoCaixa.Lancamento.Shared.Configurations;
+using FluxoCaixa.Lancamento.Shared.Contracts.Database;
+using FluxoCaixa.Lancamento.Shared.Contracts.Messaging;
+using FluxoCaixa.Lancamento.Shared.Infrastructure.Database;
+using FluxoCaixa.Lancamento.Shared.Infrastructure.Messaging;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Testcontainers.MongoDb;
 using Testcontainers.RabbitMq;
@@ -88,7 +88,7 @@ public class LancamentoTestFactory : IAsyncLifetime
 
         services.AddSingleton<IDbContext, DbContext>();
 
-        services.Configure<MessageBrokerSettings>(options =>
+        services.Configure<RabbitMqSettings>(options =>
         {
             options.HostName = _rabbitMqContainer.Hostname;
             options.Port = _rabbitMqContainer.GetMappedPublicPort(5672);

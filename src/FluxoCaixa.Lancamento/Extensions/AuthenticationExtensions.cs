@@ -1,5 +1,5 @@
-using FluxoCaixa.Lancamento.Authentication;
-using FluxoCaixa.Lancamento.Configuration;
+using FluxoCaixa.Lancamento.Shared.Configurations;
+using FluxoCaixa.Lancamento.Shared.Infrastructure.Authentication;
 
 namespace FluxoCaixa.Lancamento.Extensions;
 

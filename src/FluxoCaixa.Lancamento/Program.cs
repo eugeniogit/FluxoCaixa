@@ -2,6 +2,7 @@ using FluxoCaixa.Lancamento.Extensions;
 using FluentValidation;
 using MediatR;
 using System.Reflection;
+using FluxoCaixa.Lancamento.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 

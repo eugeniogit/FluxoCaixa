@@ -1,4 +1,4 @@
-using FluxoCaixa.Lancamento.Domain;
+using FluxoCaixa.Lancamento.Shared.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
 namespace FluxoCaixa.Lancamento.Features.CriarLancamento;

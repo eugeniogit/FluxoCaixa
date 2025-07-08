@@ -1,7 +1,7 @@
 using FluentAssertions;
-using FluxoCaixa.Consolidado.Domain;
 using FluxoCaixa.Consolidado.Features.ConsolidarLancamento;
 using FluxoCaixa.Consolidado.IntegrationTests.Infrastructure;
+using FluxoCaixa.Consolidado.Shared.Domain.Events;
 using Xunit;
 
 namespace FluxoCaixa.Consolidado.IntegrationTests.Features;
